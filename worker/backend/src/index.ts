@@ -8,26 +8,62 @@
  * Learn more at https://developers.cloudflare.com/workers/
  */
 
-export interface Env {
-  // Example binding to KV. Learn more at https://developers.cloudflare.com/workers/runtime-apis/kv/
-  // MY_KV_NAMESPACE: KVNamespace;
-  //
-  // Example binding to Durable Object. Learn more at https://developers.cloudflare.com/workers/runtime-apis/durable-objects/
-  // MY_DURABLE_OBJECT: DurableObjectNamespace;
-  //
-  // Example binding to R2. Learn more at https://developers.cloudflare.com/workers/runtime-apis/r2/
-  // MY_BUCKET: R2Bucket;
-  //
-  // Example binding to a Service. Learn more at https://developers.cloudflare.com/workers/runtime-apis/service-bindings/
-  // MY_SERVICE: Fetcher;
-}
+import { Hono } from 'hono'
+import { scrape, scrapeFromEnd } from './scrape'
+import { search } from './search'
+import { Env } from './types'
 
-export default {
-  async fetch(
-    request: Request,
-    env: Env,
-    ctx: ExecutionContext
-  ): Promise<Response> {
-    return new Response('Hello world!')
-  }
-}
+const app = new Hono<{ Bindings: Env }>()
+
+// Scrape Latest Videos
+app.get('/search', async (ctx) => {
+  const id = ctx.req.query('id')
+  if (!id) return ctx.json({ error: 'Missing id in query params' }, 400)
+
+  const title = ctx.req.query('title')
+  if (!title) return ctx.json({ error: 'Missing title in query params' }, 400)
+
+  const result = await search(ctx.env, id, title)
+  return ctx.json(result)
+})
+
+app.get('/scrape', async (ctx) => {
+  const id = ctx.req.query('id')
+  if (!id) return ctx.json({ error: 'Missing id in query params' }, 400)
+
+  const result = await scrape(ctx.env, id)
+  return ctx.json(result)
+})
+
+app.get('/scrape-end', async (ctx) => {
+  const id = ctx.req.query('id')
+  if (!id) return ctx.json({ error: 'Missing id in query params' }, 400)
+
+  const result = await scrapeFromEnd(ctx.env, id)
+  return ctx.json(result)
+})
+
+app.onError((err, ctx) => {
+  if (err.message === 'D1_ERROR') {
+    console.error((err as any).cause)
+  } else (console.error(err))
+
+  return ctx.json({ error: 'Unknown error occured.' }, 500)
+})
+
+export default app
+
+// export default {
+//   async fetch(
+//     request: Request,
+//     env: Env,
+//     ctx: ExecutionContext
+//   ): Promise<Response> {
+//     try {
+//       const scraped = await scrapeFromEnd(env, '59f94c0bdd241b70349eb72b')
+//       return new Response(JSON.stringify(scraped), { headers: { contentType: 'application/json' } })
+//     } catch (e: any) {
+//       return new Response('Internal Server Error', { status: 500 })
+//     }
+//   }
+// }

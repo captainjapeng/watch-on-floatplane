@@ -2,15 +2,19 @@ lockfileVersion: 5.4
 
 specifiers:
   '@cloudflare/workers-types': ^4.20230228.0
-  fuse.js: ^6.6.2
+  '@types/stopword': ^2.0.0
+  hono: ^3.0.3
+  stopword: ^2.0.7
   typescript: ^4.9.5
   wrangler: 2.12.0
 
 dependencies:
-  fuse.js: 6.6.2
+  hono: 3.0.3
+  stopword: 2.0.7
 
 devDependencies:
   '@cloudflare/workers-types': 4.20230228.0
+  '@types/stopword': 2.0.0
   typescript: 4.9.5
   wrangler: 2.12.0
 
@@ -431,6 +435,10 @@ packages:
     resolution: {integrity: sha512-TgfOX+mGY/NyNxJLIbDWrO9DjGoVSW9+aB8H2yy1fy32jsvxijhmyJI9fDFgvz3YP4lvJaq9DzdR/M1bOgVc9g==}
     dev: true
 
+  /@types/stopword/2.0.0:
+    resolution: {integrity: sha512-R9g+FLEFzxRANryn5f2Beg7WMMopGBNI6Ghi3+8WrOZL7C063db0VuVrEpbKrML8o6sOryNN81ms9waSJITJqw==}
+    dev: true
+
   /anymatch/3.1.3:
     resolution: {integrity: sha512-KMReFUr0B4t+D+OBkjR3KYqvocp2XaSzO55UcB6mgQMd3KbcE+mWTyvVV7D/zsdEbNnV6acZUutkiHQXvTr1Rw==}
     engines: {node: '>= 8'}
@@ -579,11 +587,6 @@ packages:
     dev: true
     optional: true
 
-  /fuse.js/6.6.2:
-    resolution: {integrity: sha512-cJaJkxCCxC8qIIcPBF9yGxY0W/tVZS3uEISDxhYIdtk8OL93pe+6Zj7LjCqVV4dzbqcriOZ+kQ/NE4RXZHsIGA==}
-    engines: {node: '>=10'}
-    dev: false
-
   /get-stream/6.0.1:
     resolution: {integrity: sha512-ts6Wi+2j3jQjqi70w5AlN8DFnkSwC+MqmxEzdEALB2qXZYV3X/b1CTfgPLGJNMeAWxdPfU8FO1ms3NUfaHCPYg==}
     engines: {node: '>=10'}
@@ -595,6 +598,11 @@ packages:
     dependencies:
       is-glob: 4.0.3
     dev: true
+
+  /hono/3.0.3:
+    resolution: {integrity: sha512-6Lb/TPH7Me1GAjFR7k/duzTcHS5y+rxFyL6Ky0kYQQlu92l99t53CFMVcdNUpHeStarPOs4Uzl413zIvxaI15A==}
+    engines: {node: '>=16.0.0'}
+    dev: false
 
   /html-rewriter-wasm/0.4.1:
     resolution: {integrity: sha512-lNovG8CMCCmcVB1Q7xggMSf7tqPCijZXaH4gL6iE8BFghdQCbaY5Met9i1x2Ex8m/cZHDUtXK9H6/znKamRP8Q==}
@@ -877,6 +885,10 @@ packages:
   /stack-trace/0.0.10:
     resolution: {integrity: sha512-KGzahc7puUKkzyMt+IqAep+TVNbKP+k2Lmwhub39m1AsTSkaDutx56aDCo+HLDzf/D26BIHTJWNiTG1KAJiQCg==}
     dev: true
+
+  /stopword/2.0.7:
+    resolution: {integrity: sha512-s+uLKAxrproCLrq0Wcd3JAIjlJLx6l80b2Rzt0u8+ra5SzGkHnNG8PS3DfGmYk2TrKePDVLL4SdKYwKpgSLc+w==}
+    dev: false
 
   /streamsearch/1.1.0:
     resolution: {integrity: sha512-Mcc5wHehp9aXz1ax6bZUyY5afg9u2rv5cqQI3mRrYkGC8rW2hM02jWuwjtL++LS5qinSyhj2QfLyNsuc+VsExg==}
