@@ -42,6 +42,11 @@ app.get('/scrape-end', async (ctx) => {
   if (!id) return ctx.json({ error: 'Missing id in query params' }, 400)
 
   const result = await scrapeFromEnd(ctx.env, id)
+
+  if (result.length > 0) {
+    ctx.header('Refresh', `5; url=${ctx.req.url.toString()}`)
+  }
+
   return ctx.json(result)
 })
 
