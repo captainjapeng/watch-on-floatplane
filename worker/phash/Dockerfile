@@ -5,4 +5,4 @@ USER deno
 COPY main.ts  .
 RUN deno cache main.ts
 
-CMD ["run", "--allow-net", "--allow-read", "--allow-env"]
+CMD ["run", "--allow-net", "--allow-read", "--allow-env", "main.ts"]
