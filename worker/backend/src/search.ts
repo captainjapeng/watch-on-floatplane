@@ -7,11 +7,11 @@ const STRIP_PUNCTUATIONS_REGEX = /[():;*^`]/
 const YOUTUBE_WATCH_PREFIX = 'https://www.youtube.com/watch'
 const YOUTUBE_VIDEO_ID_REGEX = /v=(\w+)&?/
 
-export async function match(env: Env, id: string, url: string) {
+export async function match(env: Env, creatorId: string, videoUrl: string) {
   // Get the thumbnail url of the provided url
   let thumbUrl = ''
-  if (url.startsWith(YOUTUBE_WATCH_PREFIX)) {
-    const matches = YOUTUBE_VIDEO_ID_REGEX.exec(url)
+  if (videoUrl.startsWith(YOUTUBE_WATCH_PREFIX)) {
+    const matches = YOUTUBE_VIDEO_ID_REGEX.exec(videoUrl)
     if (matches && matches[1]) {
       thumbUrl = `https://img.youtube.com/vi/${matches[1]}/maxresdefault.jpg`
     }
@@ -60,12 +60,13 @@ export async function match(env: Env, id: string, url: string) {
     ORDER BY rank DESC
     LIMIT 5;
 
-  `).bind(...hashParts, id).all<any>()
+  `).bind(...hashParts, creatorId).all<any>()
 
   // Recalculate hash based on hamming distance instead of sections
   const videos = thumbnailMatches?.results || []
   videos.forEach(video => {
     video.rank = getPHashDistance(video.phash, thumbHash)
+    video.link = `https://www.floatplane.com/post/${video.video_id}`
   })
 
   return videos.filter(video => video.rank > 0.95)

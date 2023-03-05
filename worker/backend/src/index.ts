@@ -17,13 +17,13 @@ import { backfillPHash } from './phash'
 const app = new Hono<{ Bindings: Env }>()
 
 app.get('/match', async (ctx) => {
-  const id = ctx.req.query('id')
-  if (!id) return ctx.json({ error: 'Missing id in query params' }, 400)
+  const creatorId = ctx.req.query('creatorId')
+  if (!creatorId) return ctx.json({ error: 'Missing creatorId in query params' }, 400)
 
-  const url = decodeURIComponent(ctx.req.query('url') || '')
-  if (!url) return ctx.json({ error: 'Missing url in query params' }, 400)
+  const videoUrl = decodeURIComponent(ctx.req.query('videoUrl') || '')
+  if (!videoUrl) return ctx.json({ error: 'Missing videoUrl in query params' }, 400)
 
-  const result = await match(ctx.env, id, url)
+  const result = await match(ctx.env, creatorId, videoUrl)
   return ctx.json(result)
 })
 
