@@ -9,7 +9,7 @@
   },
   "private": true,
   "scripts": {
-    "dev": "wrangler dev",
+    "dev": "wrangler dev --var LOCAL:true",
     "deploy": "wrangler publish"
   },
   "dependencies": {

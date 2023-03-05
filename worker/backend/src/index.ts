@@ -10,20 +10,20 @@
 
 import { Hono } from 'hono'
 import { scrape, scrapeFromEnd } from './scrape'
-import { search } from './search'
+import { match } from './search'
 import { EndpointDisableError, Env } from './types'
 import { backfillPHash } from './phash'
 
 const app = new Hono<{ Bindings: Env }>()
 
-app.get('/search', async (ctx) => {
+app.get('/match', async (ctx) => {
   const id = ctx.req.query('id')
   if (!id) return ctx.json({ error: 'Missing id in query params' }, 400)
 
-  const title = ctx.req.query('title')
-  if (!title) return ctx.json({ error: 'Missing title in query params' }, 400)
+  const url = decodeURIComponent(ctx.req.query('url') || '')
+  if (!url) return ctx.json({ error: 'Missing url in query params' }, 400)
 
-  const result = await search(ctx.env, id, title)
+  const result = await match(ctx.env, id, url)
   return ctx.json(result)
 })
 
@@ -70,18 +70,3 @@ app.onError((err, ctx) => {
 })
 
 export default app
-
-// export default {
-//   async fetch(
-//     request: Request,
-//     env: Env,
-//     ctx: ExecutionContext
-//   ): Promise<Response> {
-//     try {
-//       const scraped = await scrapeFromEnd(env, '59f94c0bdd241b70349eb72b')
-//       return new Response(JSON.stringify(scraped), { headers: { contentType: 'application/json' } })
-//     } catch (e: any) {
-//       return new Response('Internal Server Error', { status: 500 })
-//     }
-//   }
-// }

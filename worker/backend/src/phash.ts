@@ -54,14 +54,51 @@ export async function backfillPHash(env: Env) {
     video.phash = hashes[idx]
   })
 
-  const updateStmt = await env.DB.prepare(`
+  const updateVideosStmt = env.DB.prepare(`
     UPDATE videos
-    SET thumbnail = ?2
+    SET phash = ?2
     WHERE id = ?1
   `)
 
-  await env.DB.batch(videos.results.map(video => {
-    return updateStmt.bind(video.id, video.phash)
+  const updatePHashIdxStmt = env.DB.prepare(`
+    INSERT INTO videos_phash_idx (
+      id, p1, p2, p3, p4, p5, p6, p7, p8,
+      p9, p10, p11, p12, p13, p14, p15, p16
+    )
+    VALUES (
+      ?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9,
+      ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17
+    )
+    ON CONFLICT (id)
+    DO UPDATE SET
+      p1 =  EXCLUDED.p1,
+      p2 =  EXCLUDED.p2,
+      p3 =  EXCLUDED.p3,
+      p4 =  EXCLUDED.p4,
+      p5 =  EXCLUDED.p5,
+      p6 =  EXCLUDED.p6,
+      p7 =  EXCLUDED.p7,
+      p8 =  EXCLUDED.p8,
+      p9 =  EXCLUDED.p9,
+      p10 =  EXCLUDED.p10,
+      p11 =  EXCLUDED.p11,
+      p12 =  EXCLUDED.p12,
+      p13 =  EXCLUDED.p13,
+      p14 =  EXCLUDED.p14,
+      p15 =  EXCLUDED.p15,
+      p16 =  EXCLUDED.p16
+  `)
+
+  await env.DB.batch(videos.results.flatMap(video => {
+    const hashParts: string[] = []
+    for (let i = 0; i < 16; i++) {
+      hashParts.push(video.phash.substring(i * 4, (i * 4) + 4))
+    }
+
+    return [
+      updateVideosStmt.bind(video.id, video.phash),
+      updatePHashIdxStmt.bind(video.id, ...hashParts)
+    ]
   }))
 
   return videos
