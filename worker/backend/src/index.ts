@@ -11,8 +11,8 @@
 import { Hono } from 'hono'
 import { scrape, scrapeFromEnd } from './scrape'
 import { search } from './search'
-import { Env } from './types'
-import { backfillPHash, getPHash, getPHashDistance } from './phash'
+import { EndpointDisableError, Env } from './types'
+import { backfillPHash } from './phash'
 
 const app = new Hono<{ Bindings: Env }>()
 
@@ -29,6 +29,7 @@ app.get('/search', async (ctx) => {
 
 // Scrape Latest Videos
 app.get('/scrape', async (ctx) => {
+  if (!ctx.env.LOCAL) throw new EndpointDisableError()
   const id = ctx.req.query('id')
   if (!id) return ctx.json({ error: 'Missing id in query params' }, 400)
 
@@ -38,6 +39,7 @@ app.get('/scrape', async (ctx) => {
 
 // Scrape Old Videos
 app.get('/scrape-end', async (ctx) => {
+  if (!ctx.env.LOCAL) throw new EndpointDisableError()
   const id = ctx.req.query('id')
   if (!id) return ctx.json({ error: 'Missing id in query params' }, 400)
 
@@ -52,12 +54,15 @@ app.get('/scrape-end', async (ctx) => {
 
 // Backfill videos's phash
 app.get('/backfill-phash', async (ctx) => {
+  if (!ctx.env.LOCAL) throw new EndpointDisableError()
   const result = await backfillPHash(ctx.env)
   return ctx.json(result)
 })
 
 app.onError((err, ctx) => {
-  if (['D1_ERROR', 'D1_EXEC_ERROR'].includes(err.message)) {
+  if (err instanceof EndpointDisableError) {
+    return ctx.json({ error: err.message }, 403)
+  } else if (['D1_ERROR', 'D1_EXEC_ERROR'].includes(err.message)) {
     console.error((err as any).cause)
   } else (console.error(err))
 

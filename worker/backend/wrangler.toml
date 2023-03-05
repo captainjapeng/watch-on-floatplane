@@ -8,3 +8,7 @@ binding = "DB"
 # database_name = "watch-on-floatplane"
 database_name = "watch-on-floatplane2"
 database_id = "d45da132-24bc-4531-bad1-c5a916d06a64"
+
+
+[env.local]
+vars = { LOCAL = true }
