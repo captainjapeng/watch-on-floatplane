@@ -9,12 +9,18 @@
  */
 
 import { Hono } from 'hono'
+import { cors } from 'hono/cors'
 import { scrape, scrapeFromEnd } from './scrape'
 import { match } from './search'
 import { EndpointDisableError, Env } from './types'
 import { backfillPHash } from './phash'
 
 const app = new Hono<{ Bindings: Env }>()
+app.use('*', cors({
+  origin: [
+    'https://www.youtube.com'
+  ]
+}))
 
 app.get('/match', async (ctx) => {
   const creatorId = ctx.req.query('creatorId')

@@ -2,6 +2,9 @@
 // More info: https://quasar.dev/quasar-cli/developing-browser-extensions/content-hooks
 
 import { bexContent } from 'quasar/wrappers'
+import { CHANNELS } from './channels'
+
+const BASE_URL = 'https://watch-on-floatplane.jasperagrante.workers.dev'
 
 const textEl = document.createElement('span')
 textEl.innerText = ' • Watch on'
@@ -21,24 +24,52 @@ watchButton.append(textEl)
 watchButton.append(imgEl)
 
 export default bexContent((bridge) => {
-  // Hook into the bridge to listen for events sent from the client BEX.
-  /*
-  bridge.on('some.event', event => {
-    if (event.data.yourProp) {
-      // Access a DOM element from here.
-      // Document in this instance is the underlying website the contentScript runs on
-      const el = document.getElementById('some-id')
-      if (el) {
-        el.value = 'Quasar Rocks!'
+  bridge.once('watchable-on-floatplane', async (event) => {
+    const channelNameEl = await waitForElement('#top-row.ytd-watch-metadata .ytd-channel-name yt-formatted-string')
+    const channelName = (channelNameEl as HTMLDivElement)?.innerText || ''
+
+    if (!channelName && !CHANNELS[channelName]) return
+
+    const creatorId = CHANNELS[channelName]
+    const url = new URL('/match', BASE_URL)
+    url.searchParams.set('creatorId', creatorId)
+    url.searchParams.set('videoUrl', event.data.tab.url)
+
+    const resp = await fetch(url)
+    if (resp.status === 200) {
+      const matches = await resp.json()
+      if (matches.length > 0) {
+        watchButton.onclick = function() {
+          document.querySelector<HTMLDivElement>('.video-stream')?.click()
+          window.open(matches[0].link)
+        }
+
+        const controlBar = document.querySelector('.ytp-left-controls')
+        const chapterSection = document.querySelector('.ytp-chapter-container')
+        controlBar?.insertBefore(watchButton, chapterSection)
       }
     }
   })
-  */
-
-  bridge.on('watchable-on-floatplane', event => {
-    console.log({ event })
-    const controlBar = document.querySelector('.ytp-left-controls')
-    const chapterSection = document.querySelector('.ytp-chapter-container')
-    controlBar?.insertBefore(watchButton, chapterSection)
-  })
 })
+
+function waitForElement(selector: string) {
+  return new Promise<Element>(resolve => {
+    let selectedEl = document.querySelector(selector)
+    if (selectedEl) {
+      return resolve(selectedEl)
+    }
+
+    const observer = new MutationObserver(() => {
+      selectedEl = document.querySelector(selector)
+      if (selectedEl) {
+        resolve(selectedEl)
+        observer.disconnect()
+      }
+    })
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    })
+  })
+}
