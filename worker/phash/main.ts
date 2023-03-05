@@ -11,11 +11,18 @@ router.get('/phash', async (context) => {
     return
   }
 
-  const results = await Promise.all(urls.map(async (url) => {
-    if (!url) return ''
-    const img = await jimp.read({ url })
-    return img.hash(2)
-  }))
+  const chunkSize = 5
+  const results: string[] = []
+  for (let i = 0; i < urls.length; i += chunkSize) {
+    const chunk = urls.slice(i, i + chunkSize)
+
+    const chunkHashes = await Promise.all(chunk.map(async (url) => {
+      if (!url) return ''
+      const img = await jimp.read({ url })
+      return img.hash(2)
+    }))
+    results.push(...chunkHashes)
+  }
 
   context.response.body = results
 })
