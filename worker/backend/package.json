@@ -1,5 +1,5 @@
 {
-  "name": "backend",
+  "name": "watch-on-floatplane",
   "version": "0.0.0",
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20230228.0",
@@ -9,11 +9,14 @@
   },
   "private": true,
   "scripts": {
-    "start": "wrangler dev",
+    "dev": "wrangler dev",
     "deploy": "wrangler publish"
   },
   "dependencies": {
     "hono": "^3.0.3",
+    "jimp": "^0.22.7",
+    "sharp": "^0.31.3",
+    "sharp-phash": "^2.1.0",
     "stopword": "^2.0.7"
   }
 }

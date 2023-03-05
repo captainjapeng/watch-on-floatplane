@@ -12,10 +12,10 @@ import { Hono } from 'hono'
 import { scrape, scrapeFromEnd } from './scrape'
 import { search } from './search'
 import { Env } from './types'
+import { backfillPHash, getPHash, getPHashDistance } from './phash'
 
 const app = new Hono<{ Bindings: Env }>()
 
-// Scrape Latest Videos
 app.get('/search', async (ctx) => {
   const id = ctx.req.query('id')
   if (!id) return ctx.json({ error: 'Missing id in query params' }, 400)
@@ -27,6 +27,7 @@ app.get('/search', async (ctx) => {
   return ctx.json(result)
 })
 
+// Scrape Latest Videos
 app.get('/scrape', async (ctx) => {
   const id = ctx.req.query('id')
   if (!id) return ctx.json({ error: 'Missing id in query params' }, 400)
@@ -35,6 +36,7 @@ app.get('/scrape', async (ctx) => {
   return ctx.json(result)
 })
 
+// Scrape Old Videos
 app.get('/scrape-end', async (ctx) => {
   const id = ctx.req.query('id')
   if (!id) return ctx.json({ error: 'Missing id in query params' }, 400)
@@ -43,8 +45,14 @@ app.get('/scrape-end', async (ctx) => {
   return ctx.json(result)
 })
 
+// Backfill videos's phash
+app.get('/backfill-phash', async (ctx) => {
+  const result = await backfillPHash(ctx.env)
+  return ctx.json(result)
+})
+
 app.onError((err, ctx) => {
-  if (err.message === 'D1_ERROR') {
+  if (['D1_ERROR', 'D1_EXEC_ERROR'].includes(err.message)) {
     console.error((err as any).cause)
   } else (console.error(err))
 
