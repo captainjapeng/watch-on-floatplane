@@ -22,7 +22,12 @@ app.use('*', cors({
   ]
 }))
 
+const cache = caches.default
+
 app.get('/match', async (ctx) => {
+  const cacheResp = await cache.match(ctx.req.raw)
+  if (cacheResp) return cacheResp
+
   const creatorId = ctx.req.query('creatorId')
   if (!creatorId) return ctx.json({ error: 'Missing creatorId in query params' }, 400)
 
@@ -30,7 +35,12 @@ app.get('/match', async (ctx) => {
   if (!videoUrl) return ctx.json({ error: 'Missing videoUrl in query params' }, 400)
 
   const result = await match(ctx.env, creatorId, videoUrl)
-  return ctx.json(result)
+  const resp = ctx.json(result, 200, {
+    'Cache-Control': 'public, max-age=1800'
+  })
+
+  ctx.executionCtx.waitUntil(cache.put(ctx.req.raw, resp.clone()))
+  return resp
 })
 
 // Scrape Latest Videos

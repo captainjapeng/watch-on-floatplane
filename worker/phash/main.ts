@@ -24,6 +24,7 @@ router.get('/phash', async (context) => {
     results.push(...chunkHashes)
   }
 
+  context.response.headers.set('Cache-Control', 'public, max-age=86400')
   context.response.body = results
 })
 
