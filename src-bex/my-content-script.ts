@@ -5,6 +5,7 @@ import { bexContent } from 'quasar/wrappers'
 import { CHANNELS } from './channels'
 
 const BASE_URL = 'https://watch-on-floatplane.jasperagrante.workers.dev'
+const CHANNEL_ELEMENT_SELECTOR = '#top-row.ytd-watch-metadata .ytd-channel-name yt-formatted-string'
 
 const textEl = document.createElement('span')
 textEl.innerText = ' • Watch on'
@@ -24,16 +25,17 @@ watchButton.append(textEl)
 watchButton.append(imgEl)
 
 export default bexContent((bridge) => {
-  bridge.once('watchable-on-floatplane', async (event) => {
-    const channelNameEl = await waitForElement('#top-row.ytd-watch-metadata .ytd-channel-name yt-formatted-string')
+  bridge.on('watchable-on-floatplane', async () => {
+    const channelNameEl = await waitForElement(CHANNEL_ELEMENT_SELECTOR)
     const channelName = (channelNameEl as HTMLDivElement)?.innerText || ''
 
+    console.log({ channelName })
     if (!channelName && !CHANNELS[channelName]) return
 
     const creatorId = CHANNELS[channelName]
     const url = new URL('/match', BASE_URL)
     url.searchParams.set('creatorId', creatorId)
-    url.searchParams.set('videoUrl', event.data.tab.url)
+    url.searchParams.set('videoUrl', document.location.toString())
 
     const resp = await fetch(url)
     if (resp.status === 200) {

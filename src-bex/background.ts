@@ -26,7 +26,7 @@ declare module '@quasar/app-vite' {
   }
 }
 
-export default bexBackground((bridge /* , allActiveConnections */) => {
+export default bexBackground((bridge, allActiveConnections) => {
   bridge.on('log', ({ data, respond }) => {
     console.log(`[BEX] ${data.message}`, ...(data.data || []))
     respond()
@@ -88,11 +88,14 @@ export default bexBackground((bridge /* , allActiveConnections */) => {
   })
    */
 
-  chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-    if (changeInfo.status === 'complete' && isYoutubeVideoUrl(tab.url)) {
-      bridge.send('watchable-on-floatplane', { tab, changeInfo })
-    }
-  })
+  if (!chrome.tabs.onUpdated.hasListeners()) {
+    chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+      if (changeInfo.status === 'complete' && isYoutubeVideoUrl(tab.url)) {
+        console.log('send watchable-on-floatplane', tab.url)
+        bridge.send('watchable-on-floatplane', { tab, changeInfo })
+      }
+    })
+  }
 })
 
 function isYoutubeVideoUrl(url?: string) {
