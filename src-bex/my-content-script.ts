@@ -3,9 +3,10 @@
 
 import { bexContent } from 'quasar/wrappers'
 import { CHANNELS } from './channels'
+import { debounce } from 'quasar'
 
 const BASE_URL = 'https://watch-on-floatplane.jasperagrante.workers.dev'
-const CHANNEL_ELEMENT_SELECTOR = '#top-row.ytd-watch-metadata .ytd-channel-name yt-formatted-string'
+const CHANNEL_ELEMENT_SELECTOR = '#meta-contents #channel-name a'
 
 const textEl = document.createElement('span')
 textEl.innerText = ' • Watch on'
@@ -25,12 +26,7 @@ watchButton.append(textEl)
 watchButton.append(imgEl)
 
 export default bexContent((bridge) => {
-  bridge.on('watchable-on-floatplane', async () => {
-    const channelNameEl = await waitForElement(CHANNEL_ELEMENT_SELECTOR)
-    const channelName = (channelNameEl as HTMLDivElement)?.innerText || ''
-
-    if (!channelName && !CHANNELS[channelName]) return
-
+  const injectWatchButton = debounce(async function(channelName: string) {
     const creatorId = CHANNELS[channelName]
     const url = new URL('/match', BASE_URL)
     url.searchParams.set('creatorId', creatorId)
@@ -50,20 +46,39 @@ export default bexContent((bridge) => {
         controlBar?.insertBefore(watchButton, chapterSection)
       }
     }
+  }, 500)
+
+  bridge.on('watchable-on-floatplane', async () => {
+    const channelNameEl = await waitForElement<HTMLDivElement>(CHANNEL_ELEMENT_SELECTOR)
+    watchElement(channelNameEl, () => {
+      // Clean up button for next video
+      watchButton.remove()
+
+      const channelName = channelNameEl.innerText || ''
+      injectWatchButton(channelName)
+    })
+
+    const channelName = channelNameEl.innerText || ''
+    if (!channelName && !CHANNELS[channelName]) return
+
+    // Clean up button for next video
+    watchButton.remove()
+    injectWatchButton(channelName)
   })
 })
 
-function waitForElement(selector: string) {
-  return new Promise<Element>(resolve => {
+async function waitForElement<T>(selector: string) {
+  await sleep(500)
+  return new Promise<T>(resolve => {
     let selectedEl = document.querySelector(selector)
     if (selectedEl) {
-      return resolve(selectedEl)
+      return resolve(selectedEl as any)
     }
 
     const observer = new MutationObserver(() => {
       selectedEl = document.querySelector(selector)
       if (selectedEl) {
-        resolve(selectedEl)
+        resolve(selectedEl as any)
         observer.disconnect()
       }
     })
@@ -72,5 +87,25 @@ function waitForElement(selector: string) {
       childList: true,
       subtree: true
     })
+  })
+}
+
+async function watchElement(element: HTMLElement, cb: () => void) {
+  const observer = new MutationObserver(() => {
+    observer.disconnect()
+    cb()
+  })
+
+  observer.observe(element, {
+    childList: true,
+    subtree: true
+  })
+
+  return observer
+}
+
+function sleep(t: number) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, t)
   })
 }
