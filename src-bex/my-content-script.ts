@@ -6,6 +6,7 @@ import { CHANNELS } from './channels'
 import { debounce } from 'quasar'
 
 const BASE_URL = 'https://wofp.jasperagrante.com'
+// const BASE_URL = 'http://localhost:8787'
 const CHANNEL_ELEMENT_SELECTOR = '#meta-contents #channel-name a'
 
 const textEl = document.createElement('span')
@@ -13,7 +14,7 @@ textEl.innerText = ' • Watch on'
 textEl.style.fontSize = '13px'
 
 const imgEl = document.createElement('img')
-imgEl.src = chrome.extension.getURL('assets/fp-icon-white.svg')
+imgEl.src = chrome.runtime.getURL('assets/fp-icon-white.svg')
 imgEl.style.display = 'inline-block'
 imgEl.style.verticalAlign = 'sub'
 imgEl.style.width = '22px'
