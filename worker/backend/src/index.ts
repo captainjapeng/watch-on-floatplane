@@ -16,6 +16,7 @@ import { EndpointDisableError, Env } from './types'
 import { backfillPHash } from './phash'
 import { getChannels } from './channels'
 
+const cache = caches.default
 const app = new Hono<{ Bindings: Env }>()
 app.use('*', cors({
   origin: [
@@ -23,11 +24,10 @@ app.use('*', cors({
   ]
 }))
 
-const cache = caches.default
-
 app.get('/match', async (ctx) => {
-  const cacheResp = await cache.match(ctx.req.raw)
-  if (cacheResp) return cacheResp
+  const cacheKey = new Request(ctx.req.url.toString(), ctx.req.raw)
+  const cacheResp = await cache.match(cacheKey)
+  if (cacheResp) return new Response(cacheResp.body, cacheResp)
 
   const creatorId = ctx.req.query('creatorId')
   if (!creatorId) return ctx.json({ error: 'Missing creatorId in query params' }, 400)
@@ -36,11 +36,10 @@ app.get('/match', async (ctx) => {
   if (!videoUrl) return ctx.json({ error: 'Missing videoUrl in query params' }, 400)
 
   const result = await match(ctx.env, creatorId, videoUrl)
-  const resp = ctx.json(result, 200, {
-    'Cache-Control': 'public, max-age=1800'
-  })
+  ctx.header('Cache-Control', 'public, max-age=1800')
+  const resp = ctx.json(result)
 
-  ctx.executionCtx.waitUntil(cache.put(ctx.req.raw, resp.clone()))
+  ctx.executionCtx.waitUntil(cache.put(cacheKey, resp.clone()))
   return resp
 })
 
