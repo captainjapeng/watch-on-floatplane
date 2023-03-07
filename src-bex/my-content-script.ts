@@ -29,7 +29,6 @@ export default bexContent((bridge) => {
     const channelNameEl = await waitForElement(CHANNEL_ELEMENT_SELECTOR)
     const channelName = (channelNameEl as HTMLDivElement)?.innerText || ''
 
-    console.log({ channelName })
     if (!channelName && !CHANNELS[channelName]) return
 
     const creatorId = CHANNELS[channelName]
