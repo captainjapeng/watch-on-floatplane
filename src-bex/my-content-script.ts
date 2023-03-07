@@ -5,7 +5,7 @@ import { bexContent } from 'quasar/wrappers'
 import { CHANNELS } from './channels'
 import { debounce } from 'quasar'
 
-const BASE_URL = 'https://watch-on-floatplane.jasperagrante.workers.dev'
+const BASE_URL = 'https://wofp.jasperagrante.com'
 const CHANNEL_ELEMENT_SELECTOR = '#meta-contents #channel-name a'
 
 const textEl = document.createElement('span')
