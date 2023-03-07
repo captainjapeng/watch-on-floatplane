@@ -1,8 +1,13 @@
 import { getPHash } from './phash'
 import { Env } from './types'
 
-export async function scrape(env: Env, id: string, offset = 0) {
-  const postsResp = await fetch(`https://www.floatplane.com/api/v3/content/creator?id=${id}&fetchAfter=${offset}`)
+export async function scrape(env: Env, id: string, offset = 0, limit = 20) {
+  const url = new URL('https://www.floatplane.com/api/v3/content/creator')
+  url.searchParams.set('id', id)
+  url.searchParams.set('fetchAfter', `${offset}`)
+  url.searchParams.set('limit', `${limit}`)
+
+  const postsResp = await fetch(url)
   const posts = await postsResp.json<any[]>()
 
   if (posts.length === 0) return []

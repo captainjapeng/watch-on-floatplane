@@ -13,6 +13,15 @@ export interface Video {
   upload_date: string
 }
 
+export interface Channel {
+  id: number
+  fp_name: string
+  fp_url: string
+  fp_id: string
+  yt_name: string
+  yt_url: string
+}
+
 export class EndpointDisableError extends Error {
   constructor() {
     super('Endpoint is disabled')

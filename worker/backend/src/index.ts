@@ -14,6 +14,7 @@ import { scrape, scrapeFromEnd } from './scrape'
 import { match } from './search'
 import { EndpointDisableError, Env } from './types'
 import { backfillPHash } from './phash'
+import { getChannels } from './channels'
 
 const app = new Hono<{ Bindings: Env }>()
 app.use('*', cors({
@@ -53,6 +54,20 @@ app.get('/scrape', async (ctx) => {
   return ctx.json(result)
 })
 
+// Scrape Latest Videos
+app.get('/scrape-all', async (ctx) => {
+  if (!ctx.env.LOCAL) throw new EndpointDisableError()
+
+  const channels = await getChannels(ctx.env)
+  const tasks = channels.map(async el => ({
+    ...el,
+    result: await scrape(ctx.env, el.fp_id, undefined, 10)
+  }))
+
+  const result = await Promise.all(tasks)
+  return ctx.json(result)
+})
+
 // Scrape Old Videos
 app.get('/scrape-end', async (ctx) => {
   if (!ctx.env.LOCAL) throw new EndpointDisableError()
@@ -85,4 +100,15 @@ app.onError((err, ctx) => {
   return ctx.json({ error: 'Unknown error occured.' }, 500)
 })
 
-export default app
+export default {
+  fetch: app.fetch,
+  scheduled: async (controller: ScheduledController, env: Env, ctx: ExecutionContext) => {
+    const channels = await getChannels(env)
+    const tasks = channels.map(async el => ({
+      ...el,
+      result: await scrape(env, el.fp_id, undefined, 10)
+    }))
+
+    await Promise.all(tasks)
+  }
+}

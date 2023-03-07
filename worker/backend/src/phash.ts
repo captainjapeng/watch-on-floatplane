@@ -1,7 +1,7 @@
 import { Env } from './types'
 
 export async function getPHash(env: Env, imgUrls: string[]) {
-  const chunkSize = 5
+  const chunkSize = 10
   const resultPromises: Promise<string[]>[] = []
   for (let i = 0; i < imgUrls.length; i += chunkSize) {
     const chunk = imgUrls.slice(i, i + chunkSize)
