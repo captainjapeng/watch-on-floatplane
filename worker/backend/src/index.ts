@@ -86,6 +86,10 @@ app.get('/scrape-end', async (ctx) => {
 app.get('/backfill-phash', async (ctx) => {
   if (!ctx.env.LOCAL) throw new EndpointDisableError()
   const result = await backfillPHash(ctx.env)
+
+  if (result.length > 0) {
+    ctx.header('Refresh', `1; url=${ctx.req.url.toString()}`)
+  }
   return ctx.json(result)
 })
 
