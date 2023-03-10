@@ -1,8 +1,13 @@
-name = "backend"
+name = "watch-on-floatplane"
 main = "src/index.ts"
 compatibility_date = "2023-03-04"
 
 [[ d1_databases ]]
-database_id = "9364baf2-f635-4baa-9f85-b13ab7e534ef"
-binding = "DB" # i.e. available in your Worker on env.DB
-database_name = "watch-on-floatplane"
+binding = "DB"
+# database_id = "9364baf2-f635-4baa-9f85-b13ab7e534ef"
+# database_name = "watch-on-floatplane"
+database_name = "watch-on-floatplane2"
+database_id = "d45da132-24bc-4531-bad1-c5a916d06a64"
+
+[triggers]
+crons = ["0 * * * *"]

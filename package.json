@@ -1,6 +1,6 @@
 {
   "name": "watch-on-floatplane",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "Notify you when a video you're watching on YouTube is available on Floatplane.",
   "productName": "Watch on Floatplane",
   "author": {
@@ -10,6 +10,7 @@
   "private": true,
   "scripts": {
     "dev": "quasar dev -m bex",
+    "build": "quasar build --mode bex",
     "lint": "eslint --ext .js,.ts,.vue ./",
     "test": "echo \"No test specified\" && exit 0"
   },

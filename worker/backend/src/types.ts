@@ -1,16 +1,7 @@
 export interface Env {
-  // Example binding to KV. Learn more at https://developers.cloudflare.com/workers/runtime-apis/kv/
-  // MY_KV_NAMESPACE: KVNamespace;
-  //
-  // Example binding to Durable Object. Learn more at https://developers.cloudflare.com/workers/runtime-apis/durable-objects/
-  // MY_DURABLE_OBJECT: DurableObjectNamespace;
-  //
-  // Example binding to R2. Learn more at https://developers.cloudflare.com/workers/runtime-apis/r2/
-  // MY_BUCKET: R2Bucket;
-  //
-  // Example binding to a Service. Learn more at https://developers.cloudflare.com/workers/runtime-apis/service-bindings/
-  // MY_SERVICE: Fetcher;
   DB: D1Database
+  PHASH_HOST: string
+  LOCAL: boolean
 }
 
 export interface Video {
@@ -20,4 +11,19 @@ export interface Video {
   thumbnail: string
   video_duration: string
   upload_date: string
+}
+
+export interface Channel {
+  id: number
+  fp_name: string
+  fp_url: string
+  fp_id: string
+  yt_name: string
+  yt_url: string
+}
+
+export class EndpointDisableError extends Error {
+  constructor() {
+    super('Endpoint is disabled')
+  }
 }
