@@ -1,8 +1,10 @@
-FROM denoland/deno:1.31.1
+FROM golang:1.16-alpine
 WORKDIR /app
-USER deno
 
-COPY main.ts  .
-RUN deno cache main.ts
+COPY go.mod go.sum ./
+RUN go mod download
 
-CMD ["run", "--allow-net", "--allow-read", "--allow-env", "main.ts"]
+COPY main.go ./
+RUN go build -o /server
+
+CMD ["/server"]

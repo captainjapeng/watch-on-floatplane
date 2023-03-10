@@ -22,5 +22,8 @@
   "deno.enable": true,
   "deno.enablePaths": [
     "./worker/phash"
-  ]
+  ],
+  "[go]": {
+    "editor.defaultFormatter": "golang.go"
+  }
 }
