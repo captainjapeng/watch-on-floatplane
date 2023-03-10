@@ -43,6 +43,7 @@ export async function backfillPHash(env: Env) {
     WHERE
       (phash = '' OR phash IS NULL) AND
       thumbnail != ''
+    ORDER BY upload_date DESC
     LIMIT 20
   `).all<any>()
 
@@ -101,5 +102,5 @@ export async function backfillPHash(env: Env) {
     ]
   }))
 
-  return videos
+  return videos.results
 }
