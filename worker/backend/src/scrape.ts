@@ -1,5 +1,6 @@
 import { getPHash } from './phash'
-import { Env } from './types'
+import { Env, Video } from './types'
+import { arrayParameters } from './utils'
 
 export async function scrape(env: Env, id: string, offset = 0, limit = 20) {
   const url = new URL('https://www.floatplane.com/api/v3/content/creator')
@@ -7,13 +8,29 @@ export async function scrape(env: Env, id: string, offset = 0, limit = 20) {
   url.searchParams.set('fetchAfter', `${offset}`)
   url.searchParams.set('limit', `${limit}`)
 
-  const postsResp = await fetch(url)
-  const posts = await postsResp.json<any[]>()
+  const scrapeResp = await fetch(url)
+  let scrapedVideos = await scrapeResp.json<any[]>()
 
-  if (posts.length === 0) return []
+  if (scrapedVideos.length === 0) return []
+
+  // Filter out posts that are not on the database or
+  // the thumbnail has not yet changed
+  const scrapedVideoIds = scrapedVideos.map((video: any) => video.id)
+  const existingVideos = await env.DB.prepare(`
+    SELECT *
+    FROM videos
+    WHERE video_id IN (${arrayParameters(scrapedVideoIds.length)})
+  `).bind(...scrapedVideoIds).all<Video>()
+
+  scrapedVideos = scrapedVideos.filter(video => {
+    const match = existingVideos.results?.find(el => el.video_id === video.id)
+    return !match || match.thumbnail !== video.thumbnail?.path
+  })
+
+  if (!scrapedVideos.length) return []
 
   // Fetch thumbnail hashes
-  const thumbUrls = posts.map((video: any) => video.thumbnail?.path || '')
+  const thumbUrls = scrapedVideos.map((video: any) => video.thumbnail?.path || '')
   const hashes = await getPHash(env, thumbUrls)
 
   const insertVideoStatement = env.DB.prepare(`
@@ -38,7 +55,7 @@ export async function scrape(env: Env, id: string, offset = 0, limit = 20) {
     RETURNING *
   `)
 
-  const statements = posts.map((video: any, idx: number) => {
+  const statements = scrapedVideos.map((video: any, idx: number) => {
     return insertVideoStatement.bind(
       video.creator.id,
       video.id,
