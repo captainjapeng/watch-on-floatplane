@@ -34,6 +34,21 @@ export async function match(env: Env, creatorId: string, videoUrl: string) {
     hashParts.push(thumbHash.substring(i * 4, (i * 4) + 4))
   }
 
+  // Check if we have exact match
+  const exactMatch = await env.DB.prepare(`
+    SELECT * FROM videos
+    WHERE
+      creator_id = ?1 AND
+      phash = ?2
+    LIMIT 1
+  `).bind(creatorId, thumbHash).first<any>()
+
+  if (exactMatch) {
+    exactMatch.rank = 1
+    exactMatch.link = `https://www.floatplane.com/post/${exactMatch.video_id}`
+    return [exactMatch]
+  }
+
   // Get the closest thumbnail based on sections
   const thumbnailMatches = await env.DB.prepare(`
     WITH ranking AS (
