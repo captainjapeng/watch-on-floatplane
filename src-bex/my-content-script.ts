@@ -74,7 +74,8 @@ export default bexContent((bridge) => {
       loadingButton.remove()
       if (matches.length > 0) {
         watchButton.onclick = function() {
-          document.querySelector<HTMLDivElement>('.video-stream')?.click()
+          const player = document.querySelector<HTMLVideoElement>('video.video-stream')
+          player?.pause()
           window.open(matches[0].link)
         }
         controlBar?.insertBefore(watchButton, chapterSection)
@@ -88,7 +89,7 @@ export default bexContent((bridge) => {
     const channelNameEl = await waitForElement<HTMLDivElement>(CHANNEL_ELEMENT_SELECTOR)
     watchElement(channelNameEl, () => {
       // Clean up button for next video
-      watchButton.remove()
+      cleanup()
 
       const channelName = channelNameEl.innerText || ''
       injectWatchButton(channelName)
@@ -98,7 +99,7 @@ export default bexContent((bridge) => {
     if (!channelName && !CHANNELS[channelName]) return
 
     // Clean up button for next video
-    watchButton.remove()
+    cleanup()
     injectWatchButton(channelName)
   })
 })
@@ -138,6 +139,12 @@ async function watchElement(element: HTMLElement, cb: () => void) {
   })
 
   return observer
+}
+
+function cleanup() {
+  loadingButton.remove()
+  notFoundButton.remove()
+  watchButton.remove()
 }
 
 function sleep(t: number) {
