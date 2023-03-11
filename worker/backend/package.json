@@ -1,6 +1,6 @@
 {
   "name": "watch-on-floatplane",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20230228.0",
     "@types/stopword": "^2.0.0",
