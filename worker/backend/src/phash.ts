@@ -63,12 +63,12 @@ export async function backfillPHash(env: Env) {
 
   const updatePHashIdxStmt = env.DB.prepare(`
     INSERT INTO videos_phash_idx (
-      id, p1, p2, p3, p4, p5, p6, p7, p8,
-      p9, p10, p11, p12, p13, p14, p15, p16
+      id, creator_id, p1, p2, p3, p4, p5, p6, p7,
+      p8, p9, p10, p11, p12, p13, p14, p15, p16
     )
     VALUES (
-      ?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9,
-      ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17
+      ?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10,
+      ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18
     )
     ON CONFLICT (id)
     DO UPDATE SET
@@ -97,8 +97,8 @@ export async function backfillPHash(env: Env) {
     }
 
     return [
-      updateVideosStmt.bind(video.id, video.phash),
-      updatePHashIdxStmt.bind(video.id, ...hashParts)
+      updateVideosStmt.bind(video.id, video.creator_id, video.phash),
+      updatePHashIdxStmt.bind(video.id, video.creator_id, ...hashParts)
     ]
   }))
 

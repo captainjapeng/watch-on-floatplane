@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Make the return value of the phash server be fixed at 64 characters
+- Set videos_phash_idx creator_ids' when back filling
 
 ## [0.1.0] - 2023-03-12
 
