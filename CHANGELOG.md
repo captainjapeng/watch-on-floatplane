@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Do not send request to backend when the current channel does not have a Floatplane equiavalent.
+- YouTube URL's with `-` character not parsed properly
 
 
 ## [0.0.3] - 2023-03-07

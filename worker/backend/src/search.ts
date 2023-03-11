@@ -5,7 +5,7 @@ import { getPHash, getPHashDistance } from './phash'
 const PUNCTUATIONS_REGEX = /[+\-’`]/
 const STRIP_PUNCTUATIONS_REGEX = /[():;*^`]/
 const YOUTUBE_WATCH_PREFIX = 'https://www.youtube.com/watch'
-const YOUTUBE_VIDEO_ID_REGEX = /v=(\w+)&?/
+const YOUTUBE_VIDEO_ID_REGEX = /v=([\w-]+)&?/
 
 export async function match(env: Env, creatorId: string, videoUrl: string) {
   // Get the thumbnail url of the provided url
