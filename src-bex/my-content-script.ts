@@ -29,6 +29,10 @@ watchButton.append(imgEl)
 export default bexContent((bridge) => {
   const injectWatchButton = debounce(async function(channelName: string) {
     const creatorId = CHANNELS[channelName]
+    if (!creatorId) {
+      return
+    }
+
     const url = new URL('/match', BASE_URL)
     url.searchParams.set('creatorId', creatorId)
     url.searchParams.set('videoUrl', document.location.toString())
