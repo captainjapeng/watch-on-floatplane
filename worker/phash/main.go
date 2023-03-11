@@ -79,8 +79,6 @@ func getPHash(url string) (string, error) {
 		return "", err
 	}
 
-  resp.
-
 	// body, err := io.ReadAll(resp.Body)
 	img, _, err := image.Decode(resp.Body)
 	if err != nil {
