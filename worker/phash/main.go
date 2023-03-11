@@ -47,12 +47,17 @@ func phashHandler(w http.ResponseWriter, r *http.Request) {
 		<-sem
 	}
 
+	if len(errors) > 0 {
+		jsonError(w, errors[0].Error(), http.StatusBadRequest)
+		return
+	}
+
 	w.Header().Set("Cache-Control", "public, max-age=86400")
 	jsonResponse(w, result)
 }
 
 func jsonError(w http.ResponseWriter, errMsg string, status int) {
-	respType := HTTPError{Error: "Must provide url query params"}
+	respType := HTTPError{Error: errMsg}
 	resp, err := json.Marshal(respType)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
