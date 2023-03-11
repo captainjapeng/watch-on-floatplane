@@ -79,6 +79,11 @@ func getPHash(url string) (string, error) {
 		return "", err
 	}
 
+	if resp.StatusCode != 200 {
+		log.Printf("Unable to fetch image at %s got %s\n", url, resp.Status)
+		return "", fmt.Errorf("unable to fetch image")
+	}
+
 	// body, err := io.ReadAll(resp.Body)
 	img, _, err := image.Decode(resp.Body)
 	if err != nil {
