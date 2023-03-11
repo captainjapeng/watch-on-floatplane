@@ -96,7 +96,7 @@ func getPHash(url string) (string, error) {
 	}
 
 	hash := phash.DTC(img)
-	return fmt.Sprintf("%b", hash), nil
+	return fmt.Sprintf("%064b", hash), nil
 }
 
 func main() {

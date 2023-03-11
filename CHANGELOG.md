@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Add exact matching of  phash before falling back to partial matches
 
+### Fixed
+- Make the return value of the phash server be fixed at 64 characters
+
 ## [0.1.0] - 2023-03-12
 
 ### Added
