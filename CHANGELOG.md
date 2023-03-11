@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Add `Loading` and `Not Found` display
+
 ### Fixed
 
 - Do not send request to backend when the current channel does not have a Floatplane equiavalent.

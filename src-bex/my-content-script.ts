@@ -9,22 +9,48 @@ const BASE_URL = 'https://wofp.jasperagrante.com'
 // const BASE_URL = 'http://localhost:8787'
 const CHANNEL_ELEMENT_SELECTOR = '#meta-contents #channel-name a'
 
-const textEl = document.createElement('span')
-textEl.innerText = ' • Watch on'
-textEl.style.fontSize = '13px'
+const watchButton = (function() {
+  const textEl = document.createElement('span')
+  textEl.innerText = ' • Watch on'
+  textEl.style.fontSize = '13px'
 
-const imgEl = document.createElement('img')
-imgEl.src = chrome.runtime.getURL('assets/fp-icon-white.svg')
-imgEl.style.display = 'inline-block'
-imgEl.style.verticalAlign = 'sub'
-imgEl.style.width = '22px'
-imgEl.style.marginLeft = '4px'
-imgEl.style.marginRight = '8px'
+  const imgEl = document.createElement('img')
+  imgEl.src = chrome.runtime.getURL('assets/fp-icon-white.svg')
+  imgEl.style.display = 'inline-block'
+  imgEl.style.verticalAlign = 'sub'
+  imgEl.style.width = '22px'
+  imgEl.style.marginLeft = '4px'
+  imgEl.style.marginRight = '8px'
 
-const watchButton = document.createElement('div')
-watchButton.style.cursor = 'pointer'
-watchButton.append(textEl)
-watchButton.append(imgEl)
+  const button = document.createElement('div')
+  button.style.cursor = 'pointer'
+  button.append(textEl)
+  button.append(imgEl)
+
+  return button
+}())
+
+const loadingButton = (function() {
+  const textEl = document.createElement('span')
+  textEl.innerText = ' • Loading'
+  textEl.style.fontSize = '13px'
+
+  const button = document.createElement('div')
+  button.append(textEl)
+
+  return button
+}())
+
+const notFoundButton = (function() {
+  const textEl = document.createElement('span')
+  textEl.innerText = ' • Not Found'
+  textEl.style.fontSize = '13px'
+
+  const button = document.createElement('div')
+  button.append(textEl)
+
+  return button
+}())
 
 export default bexContent((bridge) => {
   const injectWatchButton = debounce(async function(channelName: string) {
@@ -37,18 +63,23 @@ export default bexContent((bridge) => {
     url.searchParams.set('creatorId', creatorId)
     url.searchParams.set('videoUrl', document.location.toString())
 
+    const chapterSection = document.querySelector('.ytp-chapter-container')
+    const controlBar = document.querySelector('.ytp-left-controls')
+    controlBar?.insertBefore(loadingButton, chapterSection)
+
     const resp = await fetch(url)
     if (resp.status === 200) {
       const matches = await resp.json()
+
+      loadingButton.remove()
       if (matches.length > 0) {
         watchButton.onclick = function() {
           document.querySelector<HTMLDivElement>('.video-stream')?.click()
           window.open(matches[0].link)
         }
-
-        const controlBar = document.querySelector('.ytp-left-controls')
-        const chapterSection = document.querySelector('.ytp-chapter-container')
         controlBar?.insertBefore(watchButton, chapterSection)
+      } else {
+        controlBar?.insertBefore(notFoundButton, chapterSection)
       }
     }
   }, 500)
