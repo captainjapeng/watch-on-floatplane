@@ -44,7 +44,7 @@ export async function backfillPHash(env: Env) {
       (phash = '' OR phash IS NULL) AND
       thumbnail != ''
     ORDER BY upload_date DESC
-    LIMIT 20
+    LIMIT 100
   `).all<any>()
 
   if (!videos.results?.length) return []
