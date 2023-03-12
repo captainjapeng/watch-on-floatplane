@@ -7,6 +7,7 @@ Watch on Floatplane is a browser extension for notifying you that a video is ava
 It does this by adding a small icon to the YouTube video player that shows you if the video is also available on Floatplane. If it is, you can click on the icon and watch it there with no ads and at higher quality.
 
 # TODO
+- [x] `Watch on Floatplane` button
 - [ ] Popup Search
 - [ ] Live Stream View Counter
 - [ ] Watched Video Indicator
