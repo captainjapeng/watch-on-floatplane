@@ -6,11 +6,11 @@ Watch on Floatplane is a browser extension for notifying you that a video is ava
 
 It does this by adding a small icon to the YouTube video player that shows you if the video is also available on Floatplane. If it is, you can click on the icon and watch it there with no ads and at higher quality.
 
-
-# Installation
-
-You may install this browser extension officially from the [Chrome Web Store](https://chrome.google.com/webstore/detail/watch-on-floatplane/pnndepepinedmjikpjnpibfldojmoapa) or by downloading from the [Release page](https://github.com/captainjapeng/watch-on-floatplane/releases) and following the [manual installation](https://github.com/captainjapeng/watch-on-floatplane/edit/master/README.md#manual-installation) process.
-
+# TODO
+- [ ] Popup Search
+- [ ] Live Stream View Counter
+- [ ] Watched Video Indicator
+- [ ] Resume Watching
 
 # Disclaimer
 
@@ -19,6 +19,11 @@ You may install this browser extension officially from the [Chrome Web Store](ht
 > Watch on Floatplane browser extension is not affiliated with YouTube or Floatplane, and requires a valid Floatplane account to watch the videos.
 > 
 > ⚠ ⚠ ⚠ ⚠ ⚠ ⚠ ⚠ ⚠ ⚠ ⚠
+
+
+# Installation
+
+You may install this browser extension officially from the [Chrome Web Store](https://chrome.google.com/webstore/detail/watch-on-floatplane/pnndepepinedmjikpjnpibfldojmoapa) or by downloading from the [Release page](https://github.com/captainjapeng/watch-on-floatplane/releases) and following the [manual installation](https://github.com/captainjapeng/watch-on-floatplane/edit/master/README.md#manual-installation) process.
 
 
 # Manual Installation
