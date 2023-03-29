@@ -51,6 +51,13 @@ app.get('/search', async (ctx) => {
 
   return resp
 })
+
+app.get('/channels', async (ctx) => {
+  const result = await getChannels(ctx.env)
+  const resp = ctx.json(result)
+  return resp
+})
+
 // Scrape Latest Videos
 app.get('/scrape', async (ctx) => {
   if (!ctx.env.LOCAL) throw new EndpointDisableError()
