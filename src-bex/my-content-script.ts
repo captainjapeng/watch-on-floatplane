@@ -4,9 +4,8 @@
 import { bexContent } from 'quasar/wrappers'
 import { CHANNELS } from './channels'
 import { debounce } from 'quasar'
+import { getMatch } from 'src/components/backend'
 
-const BASE_URL = 'https://wofp.jasperagrante.com'
-// const BASE_URL = 'http://localhost:8787'
 const CHANNEL_ELEMENT_SELECTOR = '#meta-contents #channel-name a'
 
 const watchButton = (function() {
@@ -59,29 +58,23 @@ export default bexContent((bridge) => {
       return
     }
 
-    const url = new URL('/match', BASE_URL)
-    url.searchParams.set('creatorId', creatorId)
-    url.searchParams.set('videoUrl', document.location.toString())
-
     const chapterSection = document.querySelector('.ytp-chapter-container')
     const controlBar = document.querySelector('.ytp-left-controls')
     controlBar?.insertBefore(loadingButton, chapterSection)
 
-    const resp = await fetch(url)
-    if (resp.status === 200) {
-      const matches = await resp.json()
+    const videoUrl = document.location.toString()
+    const matches = await getMatch(creatorId, videoUrl)
 
-      loadingButton.remove()
-      if (matches.length > 0) {
-        watchButton.onclick = function() {
-          const player = document.querySelector<HTMLVideoElement>('video.video-stream')
-          player?.pause()
-          window.open(matches[0].link)
-        }
-        controlBar?.insertBefore(watchButton, chapterSection)
-      } else {
-        controlBar?.insertBefore(notFoundButton, chapterSection)
+    loadingButton.remove()
+    if (matches.length > 0) {
+      watchButton.onclick = function() {
+        const player = document.querySelector<HTMLVideoElement>('video.video-stream')
+        player?.pause()
+        window.open(matches[0].link)
       }
+      controlBar?.insertBefore(watchButton, chapterSection)
+    } else {
+      controlBar?.insertBefore(notFoundButton, chapterSection)
     }
   }, 500)
 

@@ -7,6 +7,7 @@ specifiers:
   '@typescript-eslint/eslint-plugin': ^5.10.0
   '@typescript-eslint/parser': ^5.10.0
   autoprefixer: ^10.4.2
+  date-fns: ^2.29.3
   eslint: ^8.10.0
   eslint-config-standard: ^17.0.0
   eslint-plugin-import: ^2.19.1
@@ -14,6 +15,7 @@ specifiers:
   eslint-plugin-promise: ^6.0.0
   eslint-plugin-vue: ^9.0.0
   events: ^3.3.0
+  format-duration: ^3.0.2
   quasar: ^2.6.0
   typescript: ^4.5.4
   vue: ^3.0.0
@@ -21,7 +23,9 @@ specifiers:
 
 dependencies:
   '@quasar/extras': 1.15.11
+  date-fns: 2.29.3
   events: 3.3.0
+  format-duration: 3.0.2
   quasar: 2.11.7
   vue: 3.2.47
   vue-router: 4.1.6_vue@3.2.47
@@ -1043,6 +1047,11 @@ packages:
     resolution: {integrity: sha512-Z1PhmomIfypOpoMjRQB70jfvy/wxT50qW08YXO5lMIJkrdq4yOTR+AW7FqutScmB9NkLwxo+jU+kZLbofZZq/w==}
     dev: false
 
+  /date-fns/2.29.3:
+    resolution: {integrity: sha512-dDCnyH2WnnKusqvZZ6+jA1O51Ibt8ZMRNkDZdyAyK4YfbDwa/cEmuztzG5pk6hqlp9aSBPYcjOlktquahGwGeA==}
+    engines: {node: '>=0.11'}
+    dev: false
+
   /debug/2.6.9:
     resolution: {integrity: sha512-bC7ElrdJaJnPbAP+1EotYvqZsb3ecl5wi6Bfi6BJTUcNowp6cvspg0jXznRTKDjm/E7AdgFBVeAPVMNcKGsHMA==}
     dependencies:
@@ -1858,6 +1867,10 @@ packages:
     dependencies:
       is-callable: 1.2.7
     dev: true
+
+  /format-duration/3.0.2:
+    resolution: {integrity: sha512-pKzJDSRgK2lqAiPW3uizDaIJaJnataZclsahz25UMwfdryBGDa+1HlbXGjzpMvX/2kMh4O0sNevFXKaEfCjHsA==}
+    dev: false
 
   /forwarded/0.2.0:
     resolution: {integrity: sha512-buRG0fpBtRHSTCOASe6hD258tEubFoRLb4ZNA6NxMVHNw2gOcwHo9wyablzMzOA5z9xA9L1KNjk/Nt6MT9aYow==}
