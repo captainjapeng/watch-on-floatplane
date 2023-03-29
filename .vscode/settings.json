@@ -19,10 +19,6 @@
   "[typescript]": {
     "editor.defaultFormatter": "vscode.typescript-language-features"
   },
-  "deno.enable": true,
-  "deno.enablePaths": [
-    "./worker/phash"
-  ],
   "[go]": {
     "editor.defaultFormatter": "golang.go"
   }
