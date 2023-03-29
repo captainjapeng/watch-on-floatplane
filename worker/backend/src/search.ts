@@ -1,11 +1,12 @@
 import { removeStopwords } from 'stopword'
-import { Env } from './types'
+import { BadUserInputError, Env, SearchItem, SearchResult, Video } from './types'
 import { getPHash, getPHashDistance } from './phash'
 
 const PUNCTUATIONS_REGEX = /[+\-’`]/
-const STRIP_PUNCTUATIONS_REGEX = /[():;*^`]/
+const STRIP_PUNCTUATIONS_REGEX = /[():;*^`]/g
 const YOUTUBE_WATCH_PREFIX = 'https://www.youtube.com/watch'
 const YOUTUBE_VIDEO_ID_REGEX = /v=([\w-]+)&?/
+const FLOATPLANE_POST_PREFIX = 'https://www.floatplane.com/post/'
 
 export async function match(env: Env, creatorId: string, videoUrl: string) {
   // Get the thumbnail url of the provided url
@@ -45,7 +46,7 @@ export async function match(env: Env, creatorId: string, videoUrl: string) {
 
   if (exactMatch) {
     exactMatch.rank = 1
-    exactMatch.link = `https://www.floatplane.com/post/${exactMatch.video_id}`
+    exactMatch.link = FLOATPLANE_POST_PREFIX + exactMatch.video_id
     return [exactMatch]
   }
 
@@ -81,13 +82,14 @@ export async function match(env: Env, creatorId: string, videoUrl: string) {
   const videos = thumbnailMatches?.results || []
   videos.forEach(video => {
     video.rank = getPHashDistance(video.phash, thumbHash)
-    video.link = `https://www.floatplane.com/post/${video.video_id}`
+    video.link = FLOATPLANE_POST_PREFIX + video.video_id
   })
 
   return videos.filter(video => video.rank > 0.95)
 }
 
-export async function search(env: Env, id: string, title: string) {
+export async function search(env: Env, id: string, title: string): Promise<SearchResult> {
+  if (!title) throw new BadUserInputError('Please provide a query')
   // Strip Punctuation Marks
   title = title.replaceAll(STRIP_PUNCTUATIONS_REGEX, '')
     .trim()
@@ -100,23 +102,47 @@ export async function search(env: Env, id: string, title: string) {
       } else return word.toLowerCase()
     })
 
+  if (titleWords.length === 0 && title.length > 0) {
+    throw new BadUserInputError('No words detected')
+  }
+
   const perWordQuery = titleWords
     .sort((a, b) => b.length - a.length)
     .join(' OR ')
 
-  title = titleWords.join(' ')
   const result = await env.DB
     .prepare(`
-      SELECT idx.rank, videos.*
+      SELECT videos.*, channels.fp_name as channel_name
       FROM videos_fts "idx"
       JOIN videos ON videos.id = idx.rowid
+      JOIN channels ON channels.fp_id = idx.creator_id
       WHERE
         idx.creator_id = ?1 AND
         idx.title MATCH ?2
       ORDER BY idx.rank
+      LIMIT 5
     `)
     .bind(id, perWordQuery)
-    .all()
+    .all<Video>()
 
-  return result
+  if (!result.success) {
+    throw result.error
+  }
+
+  const items: SearchItem[] = []
+  for (const video of result.results || []) {
+    items.push({
+      id: video.video_id,
+      title: video.title,
+      link: FLOATPLANE_POST_PREFIX + video.video_id,
+      upload_date: video.upload_date,
+      video_duration: video.video_duration,
+      channel_name: (video as any).channel_name,
+      thumbnail: video.thumbnail
+    })
+  }
+
+  return {
+    items
+  }
 }

@@ -11,18 +11,14 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { scrape, scrapeFromEnd } from './scrape'
-import { match } from './search'
-import { EndpointDisableError, Env } from './types'
+import { match, search } from './search'
+import { BadUserInputError, EndpointDisableError, Env } from './types'
 import { backfillPHash } from './phash'
 import { getChannels } from './channels'
 
 const cache = caches.default
 const app = new Hono<{ Bindings: Env }>()
-app.use('*', cors({
-  origin: [
-    'https://www.youtube.com'
-  ]
-}))
+app.use('*', cors())
 
 app.get('/match', async (ctx) => {
   const cacheKey = new Request(ctx.req.url.toString(), ctx.req.raw)
@@ -43,6 +39,18 @@ app.get('/match', async (ctx) => {
   return resp
 })
 
+app.get('/search', async (ctx) => {
+  const creatorId = ctx.req.query('creatorId')
+  if (!creatorId) return ctx.json({ error: 'Missing creatorId in query params' }, 400)
+
+  const query = decodeURIComponent(ctx.req.query('query') || '').replaceAll('+', ' ')
+  if (!query) return ctx.json({ error: 'Missing query in query params' }, 400)
+
+  const result = await search(ctx.env, creatorId, query)
+  const resp = ctx.json(result)
+
+  return resp
+})
 // Scrape Latest Videos
 app.get('/scrape', async (ctx) => {
   if (!ctx.env.LOCAL) throw new EndpointDisableError()
@@ -96,6 +104,8 @@ app.get('/backfill-phash', async (ctx) => {
 app.onError((err, ctx) => {
   if (err instanceof EndpointDisableError) {
     return ctx.json({ error: err.message }, 403)
+  } else if (err instanceof BadUserInputError) {
+    return ctx.json({ error: err.message }, 400)
   } else if (['D1_ERROR', 'D1_EXEC_ERROR'].includes(err.message)) {
     console.error((err as any).cause)
   } else (console.error(err))
