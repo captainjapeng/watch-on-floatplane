@@ -44,7 +44,6 @@ app.get('/search', async (ctx) => {
   if (!creatorId) return ctx.json({ error: 'Missing creatorId in query params' }, 400)
 
   const query = decodeURIComponent(ctx.req.query('query') || '').replaceAll('+', ' ')
-  if (!query) return ctx.json({ error: 'Missing query in query params' }, 400)
 
   const result = await search(ctx.env, creatorId, query)
   const resp = ctx.json(result)

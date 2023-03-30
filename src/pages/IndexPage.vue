@@ -61,13 +61,6 @@
         />
       </div>
       <div
-        v-else-if="!search"
-        class="absolute-center hint text-h5"
-      >
-        I know you want to watch something.
-        Go ahead and type it.
-      </div>
-      <div
         v-else-if="result?.error === `No words detected`"
         class="absolute-center hint text-h5"
       >
@@ -141,28 +134,29 @@ import { Platform, openURL, useQuasar } from 'quasar'
 export default defineComponent({
   name: 'IndexPage',
   setup() {
-    const search = ref('')
-    const loading = ref(false)
-    const result = ref<SearchResult | null>(null)
-
-    watch(search, async (val) => {
-      try {
-        loading.value = true
-        result.value = null
-
-        const resp = await getSearchResult(channelFilter.value, val)
-        result.value = resp
-      } finally {
-        loading.value = false
-      }
-    })
-
     const channelsloading = ref(false)
     const channels = ref<Channel[]>([])
     const channelOpts = ref<Channel[]>([])
     const channelFilter = ref('')
     watch(channelFilter, val => {
       saveLocal('lastChannelFilter', val, bex)
+    })
+
+    const search = ref('')
+    const loading = ref(false)
+    const result = ref<SearchResult | null>(null)
+    watch([channelFilter, search], async ([creatorId, query]) => {
+      if (!creatorId) return
+
+      try {
+        loading.value = true
+        result.value = null
+
+        const resp = await getSearchResult(creatorId, query)
+        result.value = resp
+      } finally {
+        loading.value = false
+      }
     })
 
     function formatUploadDate(item: SearchItem) {

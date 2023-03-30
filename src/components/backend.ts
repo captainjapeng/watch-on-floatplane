@@ -70,6 +70,8 @@ export async function getMatch(creatorId: string, videoUrl: string) {
 }
 
 export async function getSearchResult(creatorId: string, query: string): Promise<SearchResult> {
+  if (!creatorId) throw new Error('creatorId is not provided')
+
   const url = new URL('/search', BASE_URL)
   url.searchParams.set('creatorId', creatorId)
   url.searchParams.set('query', query)

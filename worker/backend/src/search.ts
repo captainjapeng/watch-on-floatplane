@@ -89,41 +89,56 @@ export async function match(env: Env, creatorId: string, videoUrl: string) {
 }
 
 export async function search(env: Env, id: string, title: string): Promise<SearchResult> {
-  if (!title) throw new BadUserInputError('Please provide a query')
-  // Strip Punctuation Marks
-  title = title.replaceAll(STRIP_PUNCTUATIONS_REGEX, '')
-    .trim()
+  let result: D1Result<Video>
+  if (!title) {
+    result = await env.DB
+      .prepare(`
+        SELECT videos.*, channels.fp_name as channel_name
+        FROM videos
+        JOIN channels ON channels.fp_id = videos.creator_id
+        WHERE
+          videos.creator_id = ?1
+        ORDER BY videos.upload_date DESC
+        LIMIT 5
+      `)
+      .bind(id)
+      .all<Video>()
+  } else {
+    // Strip Punctuation Marks
+    title = title.replaceAll(STRIP_PUNCTUATIONS_REGEX, '')
+      .trim()
 
-  // Remove stopwords and escape words w/ punctuations if needed
-  const titleWords = removeStopwords(title.split(/\s+/g))
-    .map(word => {
-      if (PUNCTUATIONS_REGEX.test(word)) {
-        return `"${word.toLowerCase()}"`
-      } else return word.toLowerCase()
-    })
+    // Remove stopwords and escape words w/ punctuations if needed
+    const titleWords = removeStopwords(title.split(/\s+/g))
+      .map(word => {
+        if (PUNCTUATIONS_REGEX.test(word)) {
+          return `"${word.toLowerCase()}"`
+        } else return word.toLowerCase()
+      })
 
-  if (titleWords.length === 0 && title.length > 0) {
-    throw new BadUserInputError('No words detected')
+    if (titleWords.length === 0 && title.length > 0) {
+      throw new BadUserInputError('No words detected')
+    }
+
+    const perWordQuery = titleWords
+      .sort((a, b) => b.length - a.length)
+      .join(' OR ')
+
+    result = await env.DB
+      .prepare(`
+        SELECT videos.*, channels.fp_name as channel_name
+        FROM videos_fts "idx"
+        JOIN videos ON videos.id = idx.rowid
+        JOIN channels ON channels.fp_id = idx.creator_id
+        WHERE
+          idx.creator_id = ?1 AND
+          idx.title MATCH ?2
+        ORDER BY idx.rank
+        LIMIT 5
+      `)
+      .bind(id, perWordQuery)
+      .all<Video>()
   }
-
-  const perWordQuery = titleWords
-    .sort((a, b) => b.length - a.length)
-    .join(' OR ')
-
-  const result = await env.DB
-    .prepare(`
-      SELECT videos.*, channels.fp_name as channel_name
-      FROM videos_fts "idx"
-      JOIN videos ON videos.id = idx.rowid
-      JOIN channels ON channels.fp_id = idx.creator_id
-      WHERE
-        idx.creator_id = ?1 AND
-        idx.title MATCH ?2
-      ORDER BY idx.rank
-      LIMIT 5
-    `)
-    .bind(id, perWordQuery)
-    .all<Video>()
 
   if (!result.success) {
     throw result.error
