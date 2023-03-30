@@ -1,6 +1,9 @@
 # Watch on Floatplane
 
-![image](https://user-images.githubusercontent.com/26142675/224085445-5d7dbe1d-0837-4cbf-a33d-cbc94ca38eae.png)
+| Watch on Floatplane button | Searching |
+| --- | --- |
+| ![wofp-screnshot](https://user-images.githubusercontent.com/26142675/228764977-f9b0f09d-7aaf-4c09-ac95-5578ebfd00b9.jpg) | ![wofp-search](https://user-images.githubusercontent.com/26142675/228764031-614c1fc3-1cb1-445c-8ed7-1c8e067e38c3.jpg) |
+
 
 Watch on Floatplane is a browser extension for notifying you that a video is available on Floatplane.
 
@@ -8,7 +11,7 @@ It does this by adding a small icon to the YouTube video player that shows you i
 
 # TODO
 - [x] `Watch on Floatplane` button
-- [ ] Popup Search
+- [x] Popup Search
 - [ ] Live Stream View Counter
 - [ ] Watched Video Indicator
 - [ ] Resume Watching
