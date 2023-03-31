@@ -49,7 +49,7 @@
     </q-toolbar>
   </q-header>
 
-  <q-page>
+  <q-page clas>
     <q-scroll-area style="height: 440px">
       <div
         v-if="loading"
@@ -75,6 +75,7 @@
       <q-list
         v-if="result"
         separator
+        style="width: 100vw"
       >
         <q-item
           v-for="item in result.items"
@@ -89,8 +90,15 @@
             />
           </q-item-section>
           <q-item-section>
-            <q-item-label class="text-bold">
+            <q-item-label class="video-title text-bold">
               {{ item.title }}
+              <q-tooltip
+                class="bg-white text-black shadow-2 q-pa-xs"
+                :offset="[0, 4]"
+                style="font-size: 10px"
+              >
+                {{ item.title }}
+              </q-tooltip>
             </q-item-label>
             <q-item-label class="text-caption">
               <span class="text-bold">
@@ -109,8 +117,9 @@
               <span>
                 {{ formatUploadDate(item) }}
                 <q-tooltip
-                  class="bg-white text-black shadow-2"
+                  class="bg-white text-black shadow-2 q-pa-xs"
                   :offset="[0, 4]"
+                  style="font-size: 10px"
                 >
                   {{ formatUploadDateLong(item) }}
                 </q-tooltip>
@@ -239,6 +248,11 @@ export default defineComponent({
   text-align: center
   padding: 0 24px
   color: $grey-6
+
+.video-title
+  text-overflow: ellipsis
+  white-space: normal
+  overflow: hidden
 
 .q-select
   :deep(.q-field__native)

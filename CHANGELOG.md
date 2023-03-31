@@ -7,8 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Add tooltip to search results' title
+
 ### Fixed
 - Handle posts without thumbnail properly
+- Prevent horizontal scrolling on search results
 
 ### Changed
 - Do not wait for channels sync to finish before returning channel list
