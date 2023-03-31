@@ -79,6 +79,10 @@ func jsonResponse(w http.ResponseWriter, respType interface{}) {
 }
 
 func getPHash(url string) (string, error) {
+	if url == "" {
+		return "", nil
+	}
+
 	resp, err := http.Get(url)
 	if err != nil {
 		return "", err
