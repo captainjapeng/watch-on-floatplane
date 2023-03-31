@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Handle posts without thumbnail properly
 
+### Changed
+- Do not wait for channels sync to finish before returning channel list
+
 ## [0.2.0] - 2023-03-30
 
 ### Added

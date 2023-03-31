@@ -46,7 +46,11 @@ export async function getLocalChannels(bridge?: BexBridge): Promise<Channel[]> {
   const lastChannelsSynced = await getLastChannelsSynced(bridge)
   const lastSyncedMs = Date.now() - new Date(lastChannelsSynced).valueOf()
   const channels = await getLocal('channels', bridge)
-  if (!channels || lastSyncedMs > SYNC_INTERVAL) return getChannels(bridge)
+  if (!channels) {
+    return getChannels(bridge)
+  } else if (lastSyncedMs > SYNC_INTERVAL) {
+    getChannels(bridge) // allow to waterfall
+  }
 
   return channels
 }
