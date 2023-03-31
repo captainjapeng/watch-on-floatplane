@@ -12,6 +12,7 @@ It does this by adding a small icon to the YouTube video player that shows you i
 # TODO
 - [x] `Watch on Floatplane` button
 - [x] Popup Search
+- [ ] Watch Queue
 - [ ] Live Stream View Counter
 - [ ] Watched Video Indicator
 - [ ] Resume Watching
@@ -19,9 +20,9 @@ It does this by adding a small icon to the YouTube video player that shows you i
 # Disclaimer
 
 > ⚠ ⚠ ⚠ ⚠ ⚠ ⚠ ⚠ ⚠ ⚠ ⚠
-> 
+>
 > Watch on Floatplane browser extension is not affiliated with YouTube or Floatplane, and requires a valid Floatplane account to watch the videos.
-> 
+>
 > ⚠ ⚠ ⚠ ⚠ ⚠ ⚠ ⚠ ⚠ ⚠ ⚠
 
 
