@@ -1,1 +1,14 @@
 /* Global CSS used within your BEX. This is not preprocessed so this has to be pure CSS. */
+
+div.ReactElementGridItem.watched-fully div.PostTileThumbnail > .loader-backdrop {
+  display: none;
+}
+
+div.ReactElementGridItem.watched-fully div.PostTileThumbnail > img {
+  animation-name: thumbnail-image-appear-full-watched !important;
+}
+
+@keyframes thumbnail-image-appear-full-watched {
+  0% { opacity: 0; }
+  100% { opacity: 0.5 }
+}
