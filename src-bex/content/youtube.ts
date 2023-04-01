@@ -4,22 +4,25 @@ import { getMatch } from 'src/components/backend'
 import { CHANNELS } from '../channels'
 import { waitForElement, watchElement } from './utils'
 
-export default async function() {
-  const channelNameEl = await waitForElement<HTMLDivElement>(CHANNEL_ELEMENT_SELECTOR)
-  watchElement(channelNameEl, () => {
-    // Clean up button for next video
-    cleanup()
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export default function(bridge: BexBridge) {
+  return async function() {
+    const channelNameEl = await waitForElement<HTMLDivElement>(CHANNEL_ELEMENT_SELECTOR)
+    watchElement(channelNameEl, () => {
+      // Clean up button for next video
+      cleanup()
+
+      const channelName = channelNameEl.innerText || ''
+      injectWatchButton(channelName)
+    })
 
     const channelName = channelNameEl.innerText || ''
+    if (!channelName && !CHANNELS[channelName]) return
+
+    // Clean up button for next video
+    cleanup()
     injectWatchButton(channelName)
-  })
-
-  const channelName = channelNameEl.innerText || ''
-  if (!channelName && !CHANNELS[channelName]) return
-
-  // Clean up button for next video
-  cleanup()
-  injectWatchButton(channelName)
+  }
 }
 
 function cleanup() {
