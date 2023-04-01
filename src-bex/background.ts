@@ -74,11 +74,39 @@ export default bexBackground((bridge /* , allActiveConnections */) => {
   // Usage:
   // await bridge.send('sync.remove', { key: 'someKey' })
 
+  bridge.on('video.updateprogress', ({ data, respond }) => {
+    chrome.storage.local.get('progressdata', (items) => {
+      const progressdata = items.progressdata || {}
+      progressdata[data.videoId] = {
+        progress: data.progress,
+        lastUpdate: Date.now()
+      }
+      chrome.storage.local.set({ progressdata }, () => respond())
+    })
+  })
+  // Usage:
+  // await bridge.send('video.updateprogress', { videoId, progress })
+
+  bridge.on('video.getprogress', ({ data, respond }) => {
+    chrome.storage.local.get('progressdata', (items) => {
+      const progressdata = items.progressdata || {}
+      if (data && 'videoId' in data) {
+        respond(progressdata[data.videoId])
+      } else {
+        respond(progressdata)
+      }
+    })
+  })
+  // Usage:
+  // await bridge.send('video.getprogress', { videoId })
+
   if (!chrome.tabs.onUpdated.hasListeners()) {
     chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-      if (changeInfo.status === 'complete' && isYoutubeVideoUrl(tab.url)) {
-        console.log('send watchable-on-floatplane', tab.url)
+      if (changeInfo.status !== 'complete') return
+      if (isYoutubeVideoUrl(tab.url)) {
         bridge.send('watchable-on-floatplane', { tab, changeInfo })
+      } else if (isFloatplane(tab.url)) {
+        bridge.send('on-floatplane', { tab, changeInfo })
       }
     })
   }
@@ -86,4 +114,8 @@ export default bexBackground((bridge /* , allActiveConnections */) => {
 
 function isYoutubeVideoUrl(url?: string) {
   return url?.startsWith('https://www.youtube.com/watch')
+}
+
+function isFloatplane(url?: string) {
+  return /^https:\/\/(www|beta)\.floatplane.com\//.test(url || '')
 }

@@ -17,10 +17,30 @@
           </q-item>
           <q-item>
             <q-item-section>
-              <q-item-label>Enable Cloud Sync</q-item-label>
+              <q-item-label>Watch Progress Tracking</q-item-label>
+              <q-item-label caption>
+                Automatically resumes the video from where you left off.
+              </q-item-label>
             </q-item-section>
-            <q-item-section side>
-              <q-toggle v-model="cloudSyncEnabled" />
+            <q-item-section
+              side
+              top
+            >
+              <q-toggle v-model="settings.progressTracking" />
+            </q-item-section>
+          </q-item>
+          <q-item>
+            <q-item-section>
+              <q-item-label>Enable Cloud Sync</q-item-label>
+              <q-item-label caption>
+                Save your data on the cloud to allow your other devices to synchronize data.
+              </q-item-label>
+            </q-item-section>
+            <q-item-section
+              side
+              top
+            >
+              <q-toggle v-model="settings.cloudSyncEnabled" />
             </q-item-section>
           </q-item>
           <q-item>
@@ -62,9 +82,10 @@
 
 <script lang="ts">
 import { QInput, useQuasar } from 'quasar'
-import { defineComponent, onMounted, ref, watch } from 'vue'
+import { defineComponent, onMounted, reactive, ref, watch, toRaw } from 'vue'
 import short from 'short-uuid'
 import { getSync, saveSync } from 'src/components/backend'
+import { Settings } from 'src/components/settings'
 
 export default defineComponent({
   name: 'MainLayout',
@@ -74,16 +95,19 @@ export default defineComponent({
     const userIdEditable = ref(false)
     const userId = ref('')
 
-    const cloudSyncEnabled = ref(false)
-    watch(cloudSyncEnabled, (val) => {
-      saveSync('cloudSyncEnabled', val)
+    const settings = reactive<Settings>({
+      progressTracking: true,
+      cloudSyncEnabled: false
+    })
+    watch(settings, async (val) => {
+      await saveSync('settings', toRaw(val), bex)
     })
 
     const { bex } = useQuasar()
     onMounted(async () => {
-      let [_userId, _cloudSyncEnabled] = await Promise.all([
+      let [_userId, _settings] = await Promise.all([
         getSync('userId', bex),
-        getSync('cloudSyncEnabled', bex)
+        getSync('settings', bex)
       ])
 
       if (!_userId) {
@@ -92,7 +116,7 @@ export default defineComponent({
       }
 
       userId.value = _userId
-      cloudSyncEnabled.value = _cloudSyncEnabled
+      Object.assign(settings, _settings)
     })
 
     async function toggleEditUserId() {
@@ -109,7 +133,7 @@ export default defineComponent({
 
     return {
       settingsVisible,
-      cloudSyncEnabled,
+      settings,
       userId,
       userIdRef,
       userIdEditable,

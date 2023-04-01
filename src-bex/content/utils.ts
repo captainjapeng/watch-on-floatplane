@@ -1,3 +1,4 @@
+import { debounce } from 'quasar'
 
 export async function waitForElement<T>(selector: string) {
   await sleep(500)
@@ -22,6 +23,28 @@ export async function waitForElement<T>(selector: string) {
   })
 }
 
+export function watchForElement<T extends Element>(selector: string, cb: (el: T) => void | Promise<void>) {
+  let currElement = document.querySelector(selector) as T
+  if (currElement) {
+    cb(currElement)
+  }
+
+  const observer = new MutationObserver(() => {
+    const newElement = document.querySelector(selector) as T
+    if (currElement !== newElement) {
+      currElement = newElement
+      cb(currElement)
+    }
+  })
+
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true
+  })
+
+  return observer
+}
+
 export async function watchElement(element: HTMLElement, cb: () => void) {
   const observer = new MutationObserver(() => {
     observer.disconnect()
@@ -32,6 +55,29 @@ export async function watchElement(element: HTMLElement, cb: () => void) {
     childList: true,
     subtree: true
   })
+
+  return observer
+}
+
+export function watchLocationChange(_cb: (url: string) => void | Promise<void>) {
+  const cb = debounce(_cb, 250)
+  let currHref = document.location.href
+
+  const observer = new MutationObserver(() => {
+    if (currHref !== document.location.href) {
+      currHref = document.location.href
+      cb(currHref)
+    }
+  })
+
+  const body = document.querySelector('body')
+  if (body) {
+    observer.observe(body, {
+      childList: true,
+      subtree: true
+    })
+  }
+  cb(currHref)
 
   return observer
 }

@@ -4,7 +4,9 @@
 import { bexContent } from 'quasar/wrappers'
 
 import YoutubeHandler from './content/youtube'
+import FloatplaneHandler from './content/floatplane'
 
 export default bexContent((bridge) => {
   bridge.on('watchable-on-floatplane', YoutubeHandler(bridge))
+  bridge.on('on-floatplane', FloatplaneHandler(bridge))
 })
