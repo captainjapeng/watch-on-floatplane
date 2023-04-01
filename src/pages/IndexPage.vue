@@ -1,30 +1,14 @@
 <template>
   <q-header elevated>
     <q-toolbar class="bg-primary q-py-sm q-px-xs q-col-gutter-xs">
-      <div class="col-5">
-        <q-select
-          v-model.trim="channelFilter"
-          :loading="channelsloading"
-          :options="channelOpts"
-          :options-dark="false"
-          option-label="fp_name"
-          option-value="fp_id"
-          behavior="dialog"
-          rounded
-          standout
-          dark
+      <div class="col-auto">
+        <q-btn
+          icon="menu"
+          round
+          flat
           dense
-          use-input
-          map-options
-          emit-value
-          @filter="filterFn"
-        >
-          <template #selected-item="props">
-            <span class="ellipsis inline">
-              {{ props.opt.fp_name }}
-            </span>
-          </template>
-        </q-select>
+          @click="$emit('settings')"
+        />
       </div>
       <div class="col">
         <q-input
@@ -39,6 +23,42 @@
           autofocus
         >
           <template #append>
+            <!-- Component for channel popup -->
+            <q-select
+              ref="channelSelectorRef"
+              v-model.trim="channelFilter"
+              :loading="channelsloading"
+              :options="channelOpts"
+              :options-dark="false"
+              option-label="fp_name"
+              option-value="fp_id"
+              behavior="dialog"
+              rounded
+              standout
+              dark
+              dense
+              use-input
+              map-options
+              emit-value
+              class="hidden"
+              @filter="filterFn"
+            >
+              <template #selected-item="props">
+                <span class="ellipsis inline">
+                  {{ props.opt.fp_name }}
+                </span>
+              </template>
+            </q-select>
+
+            <!-- Channel popup button -->
+            <div
+              class="text-caption ellipsis cursor-pointer q-mr-xs"
+              style="max-width: 30vw"
+              @click.stop="channelSelectorRef.showPopup()"
+            >
+              {{ getChannelName(channelFilter) }}
+            </div>
+
             <q-icon
               v-if="!loading"
               name="search"
@@ -138,11 +158,13 @@ import { defineComponent, onMounted, ref, watch } from 'vue'
 import { formatDistanceStrict, format } from 'date-fns'
 import { SearchItem } from 'app/worker/backend/src/types'
 import formatDuration from 'format-duration'
-import { Platform, openURL, useQuasar } from 'quasar'
+import { Platform, QSelect, openURL, useQuasar } from 'quasar'
 
 export default defineComponent({
   name: 'IndexPage',
+  emits: ['settings'],
   setup() {
+    const channelSelectorRef = ref<QSelect>(null as any)
     const channelsloading = ref(false)
     const channels = ref<Channel[]>([])
     const channelOpts = ref<Channel[]>([])
@@ -224,7 +246,12 @@ export default defineComponent({
       })
     }
 
+    function getChannelName(id: string) {
+      return channels.value.find(el => el.fp_id === id)?.fp_name
+    }
+
     return {
+      channelSelectorRef,
       search,
       channelFilter,
       loading,
@@ -236,7 +263,8 @@ export default defineComponent({
       formatUploadDateLong,
       formatDuration,
       onClick,
-      filterFn
+      filterFn,
+      getChannelName
     }
   }
 })

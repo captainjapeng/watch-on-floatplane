@@ -108,3 +108,21 @@ export async function getLocal(key: string, bridge?: BexBridge) {
     return LocalStorage.getItem(key)
   }
 }
+
+export async function saveSync(key: string, value: any, bridge?: BexBridge) {
+  if (bridge) {
+    const resp = await bridge.send('sync.set', { key, value })
+    return resp.data
+  } else {
+    return LocalStorage.set(key, value)
+  }
+}
+
+export async function getSync(key: string, bridge?: BexBridge) {
+  if (bridge) {
+    const resp = await bridge.send('sync.get', { key })
+    return resp.data
+  } else {
+    return LocalStorage.getItem(key)
+  }
+}

@@ -42,25 +42,37 @@ export default bexBackground((bridge /* , allActiveConnections */) => {
   // Usage:
   // await bridge.send('storage.remove', { key: 'someKey' })
 
-  /*
-  // EXAMPLES
-  // Listen to a message from the client
-  bridge.on('test', d => {
-    console.log(d)
-  })
-
-  // Send a message to the client based on something happening.
-  chrome.tabs.onCreated.addListener(tab => {
-    bridge.send('browserTabCreated', { tab })
-  })
-
-  // Send a message to the client based on something happening.
-  chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-    if (changeInfo.url) {
-      bridge.send('browserTabUpdated', { tab, changeInfo })
+  bridge.on('sync.get', ({ data, respond }) => {
+    const { key } = data
+    if (key === null) {
+      chrome.storage.sync.get(null, items => {
+        // Group the values up into an array to take advantage of the bridge's chunk splitting.
+        respond(Object.values(items))
+      })
+    } else {
+      chrome.storage.sync.get([key], items => {
+        respond(items[key])
+      })
     }
   })
-   */
+  // Usage:
+  // const { data } = await bridge.send('sync.get', { key: 'someKey' })
+
+  bridge.on('sync.set', ({ data, respond }) => {
+    chrome.storage.sync.set({ [data.key]: data.value }, () => {
+      respond()
+    })
+  })
+  // Usage:
+  // await bridge.send('sync.set', { key: 'someKey', value: 'someValue' })
+
+  bridge.on('sync.remove', ({ data, respond }) => {
+    chrome.storage.sync.remove(data.key, () => {
+      respond()
+    })
+  })
+  // Usage:
+  // await bridge.send('sync.remove', { key: 'someKey' })
 
   if (!chrome.tabs.onUpdated.hasListeners()) {
     chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
