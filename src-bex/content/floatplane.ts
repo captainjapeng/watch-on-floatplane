@@ -44,7 +44,7 @@ export default function(bridge: BexBridge) {
         )
       } else if (isChannelPage(url)) {
         // Channel Page Handler
-        const progressdata = (await bridge.send('video.getprogress'))?.data || {}
+        const progressData = (await bridge.send('video.getprogress'))?.data || {}
         videoFeedObserver = watchForElement<HTMLDivElement>(
           FEED_ELEMENT,
           async (videoFeedEl) => {
@@ -56,7 +56,7 @@ export default function(bridge: BexBridge) {
               if (!linkEl) return
 
               const videoId = getVideoId(linkEl.href)
-              const videoProgress = progressdata[videoId]
+              const videoProgress = progressData[videoId]
 
               // Skip item if we've already injected the watch indicator
               if (!videoProgress || itemEl.classList.contains('watched')) {

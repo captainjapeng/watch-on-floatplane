@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add tooltip to search results' title
 - Automatically resume video from where the user left off
 - Display watch progress on Channel Page
-- (backend) Add support for cloud based sync for watch progress
+- Add support for cloud based sync for watch progress
 
 ### Fixed
 - Handle posts without thumbnail properly

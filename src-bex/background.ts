@@ -1,4 +1,18 @@
 import { bexBackground } from 'quasar/wrappers'
+import { BASE_URL } from 'src/components/config'
+import { Settings } from 'src/components/settings'
+
+chrome.runtime.onInstalled.addListener(() => {
+  syncProgressData()
+})
+
+setInterval(() => {
+  chrome.storage.local.get(['shouldSyncProgressData'], async items => {
+    if (items.shouldSyncProgressData) {
+      syncProgressData()
+    }
+  })
+}, 60 * 1000)
 
 export default bexBackground((bridge /* , allActiveConnections */) => {
   bridge.on('log', ({ data, respond }) => {
@@ -75,25 +89,28 @@ export default bexBackground((bridge /* , allActiveConnections */) => {
   // await bridge.send('sync.remove', { key: 'someKey' })
 
   bridge.on('video.updateprogress', ({ data, respond }) => {
-    chrome.storage.local.get('progressdata', (items) => {
-      const progressdata = items.progressdata || {}
-      progressdata[data.videoId] = {
+    chrome.storage.local.get('progressData', (items) => {
+      const progressData = items.progressData || {}
+      progressData[data.videoId] = {
         progress: data.progress,
         lastUpdate: Date.now()
       }
-      chrome.storage.local.set({ progressdata }, () => respond())
+      chrome.storage.local.set({
+        progressData,
+        shouldSyncProgressData: true
+      }, () => respond())
     })
   })
   // Usage:
   // await bridge.send('video.updateprogress', { videoId, progress })
 
   bridge.on('video.getprogress', ({ data, respond }) => {
-    chrome.storage.local.get('progressdata', (items) => {
-      const progressdata = items.progressdata || {}
+    chrome.storage.local.get('progressData', (items) => {
+      const progressData = items.progressData || {}
       if (data && 'videoId' in data) {
-        respond(progressdata[data.videoId])
+        respond(progressData[data.videoId])
       } else {
-        respond(progressdata)
+        respond(progressData)
       }
     })
   })
@@ -118,4 +135,28 @@ function isYoutubeVideoUrl(url?: string) {
 
 function isFloatplane(url?: string) {
   return /^https:\/\/(www|beta)\.floatplane.com\//.test(url || '')
+}
+
+function syncProgressData() {
+  chrome.storage.sync.get(['userId', 'settings'], async syncItems => {
+    const { userId, settings } = syncItems
+    if (!(settings as Settings)?.cloudSyncEnabled) return
+
+    chrome.storage.local.get(['progressData'], async localItems => {
+      const { progressData } = localItems
+      if (userId) {
+        const url = new URL('/user/sync/progress', BASE_URL)
+        const resp = await fetch(url, {
+          method: 'POST',
+          headers: { authorization: `Bearer ${userId}` },
+          body: JSON.stringify(progressData || {})
+        })
+
+        chrome.storage.local.set({
+          progressData: await resp.json(),
+          shouldSyncProgressData: false
+        })
+      }
+    })
+  })
 }

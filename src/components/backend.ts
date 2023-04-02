@@ -1,9 +1,6 @@
 import { BexBridge } from '@quasar/app-vite'
 import { LocalStorage } from 'quasar'
-
-const BASE_URL = 'https://wofp.jasperagrante.com'
-// const BASE_URL = 'http://localhost:8787'
-const SYNC_INTERVAL = 60 * 60 * 1000
+import { BASE_URL, SYNC_INTERVAL } from './config'
 
 export interface Channel {
   id: number
