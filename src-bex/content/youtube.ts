@@ -2,27 +2,32 @@ import { BexBridge } from '@quasar/app-vite'
 import { debounce } from 'quasar'
 import { getMatch } from 'src/components/backend'
 import { CHANNELS } from '../channels'
-import { waitForElement, watchElement } from './utils'
+import { waitForElement, watchLocationChange } from './utils'
+
+let observer: MutationObserver
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export default function(bridge: BexBridge) {
   return async function() {
-    const channelNameEl = await waitForElement<HTMLDivElement>(CHANNEL_ELEMENT_SELECTOR)
-    watchElement(channelNameEl, () => {
+    if (observer) return
+
+    observer = watchLocationChange(async (url) => {
       // Clean up button for next video
       cleanup()
 
+      if (!isVideoPage(url)) return
+
+      const channelNameEl = await waitForElement<HTMLDivElement>(CHANNEL_ELEMENT_SELECTOR)
       const channelName = channelNameEl.innerText || ''
+      if (!channelName && !CHANNELS[channelName]) return
+
       injectWatchButton(channelName)
     })
-
-    const channelName = channelNameEl.innerText || ''
-    if (!channelName && !CHANNELS[channelName]) return
-
-    // Clean up button for next video
-    cleanup()
-    injectWatchButton(channelName)
   }
+}
+
+function isVideoPage(url?: string) {
+  return url?.startsWith('https://www.youtube.com/watch')
 }
 
 function cleanup() {
