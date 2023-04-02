@@ -1,8 +1,13 @@
-export interface Env {
+import { Bindings } from 'hono/dist/types/types'
+
+export interface Env extends Bindings {
   DB: D1Database
   PHASH_HOST: string
   LOCAL: boolean
+  USER: DurableObjectNamespace
 }
+
+export type HonoEnv = { Bindings: Env }
 
 export interface Video {
   creator_id: string

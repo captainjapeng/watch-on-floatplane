@@ -64,6 +64,7 @@ module.exports = {
 
   // add your custom rules here
   rules: {
+    'no-undef': 'off',
     'vue/multi-word-component-names': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',

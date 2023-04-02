@@ -8,16 +8,18 @@
  * Learn more at https://developers.cloudflare.com/workers/
  */
 
-import { Hono } from 'hono'
+import { Context, Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { scrape, scrapeFromEnd } from './scrape'
 import { match, search } from './search'
-import { BadUserInputError, EndpointDisableError, Env } from './types'
+import { BadUserInputError, EndpointDisableError, Env, HonoEnv } from './types'
 import { backfillPHash } from './phash'
 import { getChannels } from './channels'
 
+export { User } from './objects/user'
+
 const cache = caches.default
-const app = new Hono<{ Bindings: Env }>()
+const app = new Hono<HonoEnv>()
 app.use('*', cors())
 
 app.get('/match', async (ctx) => {
@@ -106,6 +108,20 @@ app.get('/backfill-phash', async (ctx) => {
   }
   return ctx.json(result)
 })
+
+// User object
+async function handleUserReq(ctx: Context<HonoEnv>): Promise<Response> {
+  const userId = ctx.req.header('authorization')?.replace('Bearer ', '') || ''
+  if (!userId) return ctx.json({ error: 'Missing authorization header' }, 401)
+
+  const id = ctx.env.USER.idFromName(userId)
+  const obj = ctx.env.USER.get(id)
+
+  const doResp = await obj.fetch(ctx.req.raw)
+  const doBody = await doResp.blob()
+  return new Response(doBody, doResp)
+}
+app.post('/user/sync/progress', handleUserReq)
 
 app.onError((err, ctx) => {
   if (err instanceof EndpointDisableError) {
