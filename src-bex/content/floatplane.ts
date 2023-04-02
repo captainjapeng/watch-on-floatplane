@@ -120,7 +120,6 @@ function createProgressBar(progress: number): HTMLDivElement {
   backgroundEl.style.left = '0'
   backgroundEl.style.right = '0'
   backgroundEl.style.zIndex = '1'
-  backgroundEl.style.borderTop = '1px solid black'
 
   const progressEl = document.createElement('div')
   progressEl.style.width = `${Math.round(progress * 100)}%`
