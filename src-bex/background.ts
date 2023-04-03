@@ -1,5 +1,5 @@
 import { bexBackground } from 'quasar/wrappers'
-import { BASE_URL } from 'src/components/config'
+import { BASE_URL, SYNC_INTERVAL } from 'src/components/config'
 import { Settings } from 'src/components/settings'
 
 chrome.runtime.onInstalled.addListener(() => {
@@ -12,7 +12,7 @@ setInterval(() => {
       syncProgressData()
     }
   })
-}, 60 * 1000)
+}, SYNC_INTERVAL)
 
 export default bexBackground((bridge /* , allActiveConnections */) => {
   bridge.on('log', ({ data, respond }) => {
