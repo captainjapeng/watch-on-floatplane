@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2023-04-03
+
 ### Added
 - Add tooltip to search results' title
 - Automatically resume video from where the user left off
