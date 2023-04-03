@@ -183,7 +183,7 @@ export default defineComponent({
         loading.value = true
         result.value = null
 
-        const resp = await getSearchResult(creatorId, query)
+        const resp = await getSearchResult(creatorId, query || '')
         result.value = resp
       } finally {
         loading.value = false

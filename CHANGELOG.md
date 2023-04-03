@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Handle posts without thumbnail properly
 - Prevent horizontal scrolling on search results
 - `Watch on FP` button not updating when video changes
+- Reset to latest videos when search input is cleared
 
 ### Changed
 - Do not wait for channels sync to finish before returning channel list
