@@ -1,6 +1,6 @@
 import { BexBridge } from '@quasar/app-vite'
 import { LocalStorage, Notify } from 'quasar'
-import { BASE_URL, SYNC_INTERVAL } from './config'
+import { BASE_URL, CHANNELS_SYNC_INTERVAL } from './config'
 import { DEFAULT_SETTINGS, Settings } from './settings'
 
 export interface Channel {
@@ -46,7 +46,7 @@ export async function getLocalChannels(bridge?: BexBridge): Promise<Channel[]> {
   const channels = await getLocal('channels', bridge)
   if (!channels) {
     return getChannels(bridge)
-  } else if (lastSyncedMs > SYNC_INTERVAL) {
+  } else if (lastSyncedMs > CHANNELS_SYNC_INTERVAL) {
     getChannels(bridge) // allow to waterfall
   }
 
