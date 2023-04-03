@@ -117,6 +117,13 @@ export default bexBackground((bridge /* , allActiveConnections */) => {
   // Usage:
   // await bridge.send('video.getprogress', { videoId })
 
+  bridge.on('sync.progressdata', ({ respond }) => {
+    syncProgressData()
+    respond()
+  })
+  // Usage:
+  // await bridge.send('sync.progressdata')
+
   if (!chrome.tabs.onUpdated.hasListeners()) {
     chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
       if (changeInfo.status !== 'complete') return

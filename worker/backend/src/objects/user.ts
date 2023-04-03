@@ -24,6 +24,7 @@ export class User implements DurableObject {
   ) {
     this.app = new Hono<HonoEnv>()
     this.app.post('/user/sync/progress', this.syncProgress.bind(this))
+    this.app.delete('/user', this.deleteData.bind(this))
 
     this.state.blockConcurrencyWhile(async () => {
       const numChunks = await this.state.storage.get<number>('progressChunks') || 1
@@ -80,6 +81,14 @@ export class User implements DurableObject {
 
     this.state.storage.put('progressChunks', numChunks)
     return ctx.json(this.progressData)
+  }
+
+  async deleteData(ctx: Context<HonoEnv>): Promise<Response> {
+    return this.state.blockConcurrencyWhile(async () => {
+      this.progressData = {}
+      await this.state.storage.deleteAll()
+      return ctx.json({ success: true })
+    })
   }
 
   fetch(request: Request<unknown>): Response | Promise<Response> {

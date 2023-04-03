@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Automatically resume video from where the user left off
 - Display watch progress on Channel Page
 - Add support for cloud based sync for watch progress
+- Add button on settings to delete cloud data
 
 ### Fixed
 - Handle posts without thumbnail properly

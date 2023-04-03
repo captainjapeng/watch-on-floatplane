@@ -70,49 +70,65 @@
               </div>
             </q-item-section>
           </q-item>
+          <q-item
+            clickable
+            @click="deleteCloudData()"
+          >
+            <q-item-section>
+              <q-item-label class="text-negative">
+                Delete Cloud Data
+              </q-item-label>
+              <q-item-label caption>
+                This will delete all your data saved in the cloud but will not affect your local data.
+                It will also automatically disable cloud sync feature.
+              </q-item-label>
+            </q-item-section>
+          </q-item>
         </q-list>
       </q-scroll-area>
     </q-drawer>
 
     <q-page-container>
-      <router-view @settings="settingsVisible = !settingsVisible" />
+      <router-view @settings="toggleSettings" />
     </q-page-container>
   </q-layout>
 </template>
 
 <script lang="ts">
-import { QInput, useQuasar } from 'quasar'
+import { Dialog, QInput, useQuasar } from 'quasar'
 import { defineComponent, onMounted, reactive, ref, watch, toRaw } from 'vue'
 import short from 'short-uuid'
-import { getSync, saveSync } from 'src/components/backend'
-import { Settings } from 'src/components/settings'
+import {
+  getSync,
+  saveSync,
+  deleteCloudData as _deleteCloudData
+} from 'src/components/backend'
+import { DEFAULT_SETTINGS, Settings } from 'src/components/settings'
 
 export default defineComponent({
   name: 'MainLayout',
   setup() {
+    const { bex: bridge } = useQuasar()
     const settingsVisible = ref(false)
     const userIdRef = ref<QInput>(null as any)
     const userIdEditable = ref(false)
     const userId = ref('')
 
-    const settings = reactive<Settings>({
-      progressTracking: true,
-      cloudSyncEnabled: false
-    })
+    const settings = reactive<Settings>(DEFAULT_SETTINGS)
     watch(settings, async (val) => {
-      await saveSync('settings', toRaw(val), bex)
+      await saveSync('settings', toRaw(val), bridge)
+      await bridge?.send('sync.progressdata')
     })
 
-    const { bex } = useQuasar()
     onMounted(async () => {
       let [_userId, _settings] = await Promise.all([
-        getSync('userId', bex),
-        getSync('settings', bex)
+        getSync('userId', bridge),
+        getSync('settings', bridge)
       ])
 
       if (!_userId) {
         _userId = short.generate()
-        await saveSync('userId', _userId, bex)
+        await saveSync('userId', _userId, bridge)
       }
 
       userId.value = _userId
@@ -127,8 +143,27 @@ export default defineComponent({
         userIdRef.value.focus()
       } else {
         // Persist data
-        await saveSync('userId', userId.value, bex)
+        await saveSync('userId', userId.value, bridge)
       }
+    }
+
+    async function toggleSettings() {
+      const _settings = await getSync('settings', bridge)
+      Object.assign(settings, _settings)
+
+      settingsVisible.value = !settingsVisible.value
+    }
+
+    function deleteCloudData() {
+      Dialog.create({
+        title: 'Confirm Action',
+        message: 'Are you sure you want to proceed with your cloud data deletion?',
+        ok: { color: 'negative', flat: true },
+        cancel: true
+      }).onOk(() => {
+        settings.cloudSyncEnabled = false
+        return _deleteCloudData(bridge)
+      })
     }
 
     return {
@@ -137,7 +172,9 @@ export default defineComponent({
       userId,
       userIdRef,
       userIdEditable,
-      toggleEditUserId
+      toggleEditUserId,
+      toggleSettings,
+      deleteCloudData
     }
   }
 })

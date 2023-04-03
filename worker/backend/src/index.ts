@@ -122,6 +122,7 @@ async function handleUserReq(ctx: Context<HonoEnv>): Promise<Response> {
   return new Response(doBody, doResp)
 }
 app.post('/user/sync/progress', handleUserReq)
+app.delete('/user', handleUserReq)
 
 app.onError((err, ctx) => {
   if (err instanceof EndpointDisableError) {

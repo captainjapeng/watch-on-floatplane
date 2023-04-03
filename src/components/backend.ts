@@ -1,6 +1,7 @@
 import { BexBridge } from '@quasar/app-vite'
-import { LocalStorage } from 'quasar'
+import { LocalStorage, Notify } from 'quasar'
 import { BASE_URL, SYNC_INTERVAL } from './config'
+import { DEFAULT_SETTINGS, Settings } from './settings'
 
 export interface Channel {
   id: number
@@ -88,6 +89,33 @@ export async function getSearchResult(creatorId: string, query: string): Promise
   }
 }
 
+export async function deleteCloudData(bridge?: BexBridge) {
+  const url = new URL('/user', BASE_URL)
+  const userId = await getSync('userId', bridge)
+
+  const resp = await fetch(url, {
+    method: 'DELETE',
+    headers: { authorization: `Bearer ${userId}` }
+  })
+
+  if (resp.status === 200) {
+    const settings = await getSettings(bridge)
+    settings.cloudSyncEnabled = false
+    await saveSync('settings', settings, bridge)
+
+    Notify.create({
+      message: 'Cloud Data has been deleted.',
+      color: 'positive'
+    })
+  } else {
+    Notify.create({
+      message: 'Something went wrong while while fulfilling your request.',
+      color: 'negative'
+    })
+    throw new Error(resp.statusText)
+  }
+}
+
 export async function saveLocal(key: string, value: any, bridge?: BexBridge) {
   if (bridge) {
     const resp = await bridge.send('storage.set', { key, value })
@@ -122,4 +150,11 @@ export async function getSync(key: string, bridge?: BexBridge) {
   } else {
     return LocalStorage.getItem(key)
   }
+}
+
+export async function getSettings(bridge?: BexBridge): Promise<Settings> {
+  return Object.assign(
+    DEFAULT_SETTINGS,
+    await getSync('settings', bridge)
+  )
 }
