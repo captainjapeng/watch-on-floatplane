@@ -69,8 +69,14 @@
     </q-toolbar>
   </q-header>
 
-  <q-page clas>
+  <q-page>
     <q-scroll-area style="height: 440px">
+      <div
+        class="text-center q-mt-sm text-grey-5 cursor-pointer non-selectable"
+        @click="openChannel()"
+      >
+        Open Channel in Floatplane
+      </div>
       <div
         v-if="loading"
         class="absolute-center"
@@ -250,6 +256,18 @@ export default defineComponent({
       return channels.value.find(el => el.fp_id === id)?.fp_name
     }
 
+    function openChannel() {
+      const channel = channels.value.find(el => el.fp_id === channelFilter.value)
+      if (!channel) return
+
+      const channelUrl = `https://www.floatplane.com/channel/${channel.fp_url}/home`
+      if (Platform.is.bex) {
+        chrome.tabs.create({ url: channelUrl })
+      } else {
+        openURL(channelUrl)
+      }
+    }
+
     return {
       channelSelectorRef,
       search,
@@ -264,7 +282,8 @@ export default defineComponent({
       formatDuration,
       onClick,
       filterFn,
-      getChannelName
+      getChannelName,
+      openChannel
     }
   }
 })

@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Display watch progress on Channel Page
 - Add support for cloud based sync for watch progress
 - Add button on settings to delete cloud data
+- Add `Open Channel in Floatplane` button
 
 ### Fixed
 - Handle posts without thumbnail properly
