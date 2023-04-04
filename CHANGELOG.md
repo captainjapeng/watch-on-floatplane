@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Properly insert progress item to the correct index when syncing.
+
 ## [0.3.0] - 2023-04-03
 
 ### Added

@@ -43,7 +43,7 @@ export class User implements DurableObject {
     const progressData = await ctx.req.json<Record<string, ProgressData>>()
 
     // Merge new data and sort by lastUpdate in order to drop old records
-    const sortedData = new Array<ProgressDataWithID>(Object.keys(progressData).length)
+    const sortedData: ProgressDataWithID[] = []
     for (const [key, value] of Object.entries(progressData)) {
       const existing = this.progressData[key]
       if (!existing || value.lastUpdate > existing.lastUpdate) {
@@ -52,7 +52,7 @@ export class User implements DurableObject {
 
       const item = { id: key, ...value }
       const insertIdx = _.sortedIndexBy(sortedData, item, 'lastUpdate')
-      sortedData[insertIdx] = item
+      sortedData.splice(insertIdx, 0, item)
     }
 
     // Extract last MAX_CHUNKS * ITEMS_PER_CHUNK from sortedData and
