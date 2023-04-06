@@ -8,7 +8,7 @@
  * Learn more at https://developers.cloudflare.com/workers/
  */
 
-import { Context, Hono } from 'hono'
+import { Context, Hono, MiddlewareHandler } from 'hono'
 import { cors } from 'hono/cors'
 import { scrape, scrapeFromEnd } from './scrape'
 import { match, search } from './search'
@@ -27,9 +27,7 @@ import {
 export { User } from './objects/user'
 
 const cache = caches.default
-const app = new Hono<HonoEnv>()
-app.use('*', cors())
-app.use('*', async (ctx, next) => {
+const metricsMiddleware: MiddlewareHandler = async (ctx, next) => {
   const startTime = Date.now()
   await next()
   const elapsed = Date.now() - startTime
@@ -56,9 +54,12 @@ app.use('*', async (ctx, next) => {
     doubles: [1, elapsed],
     indexes: [path]
   })
-})
+}
 
-app.get('/match', async (ctx) => {
+const app = new Hono<HonoEnv>()
+app.use('*', cors())
+
+app.get('/match', metricsMiddleware, async (ctx) => {
   const cacheKey = new Request(ctx.req.url.toString(), ctx.req.raw)
   const cacheResp = await cache.match(cacheKey)
   if (cacheResp) return new Response(cacheResp.body, cacheResp)
@@ -77,7 +78,7 @@ app.get('/match', async (ctx) => {
   return resp
 })
 
-app.get('/search', async (ctx) => {
+app.get('/search', metricsMiddleware, async (ctx) => {
   const creatorId = ctx.req.query('creatorId')
   if (!creatorId) return ctx.json({ error: 'Missing creatorId in query params' }, 400)
 
@@ -89,7 +90,7 @@ app.get('/search', async (ctx) => {
   return resp
 })
 
-app.get('/channels', async (ctx) => {
+app.get('/channels', metricsMiddleware, async (ctx) => {
   const result = await getChannels(ctx.env)
   const resp = ctx.json(result)
   return resp
@@ -157,8 +158,8 @@ async function handleUserReq(ctx: Context<HonoEnv>): Promise<Response> {
   const doBody = await doResp.blob()
   return new Response(doBody, doResp)
 }
-app.post('/user/sync/progress', handleUserReq)
-app.delete('/user', handleUserReq)
+app.post('/user/sync/progress', metricsMiddleware, handleUserReq)
+app.delete('/user', metricsMiddleware, handleUserReq)
 
 app.get('/stats/dau', async (ctx) => {
   const type = ctx.req.query('type') || 'json'

@@ -286,6 +286,7 @@ export function sortRequestDataset(result: AnalyticsQueryResult<RequestItem>) {
     })
     .sortBy('max')
     .reverse()
+    .take(10)
     .value()
 }
 

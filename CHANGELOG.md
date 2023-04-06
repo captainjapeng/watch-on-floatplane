@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - (backend) SVG generation for stats
 - [Stats Page](/STATS.md) to display stats from the backend
 
+### Changed
+- (backend) Only apply metrics middleware to user facing endpoint
+
+
 ## [0.3.1] - 2023-04-06
 
 ### Added
