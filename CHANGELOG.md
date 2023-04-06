@@ -7,7 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- (backend) SVG generation for stats
+- [Stats Page](/STATS.md) to display stats from the backend
+
 ## [0.3.1] - 2023-04-06
+
 ### Added
 - Add metrics colletion for backend observability. [Read more](https://github.com/captainjapeng/watch-on-floatplane#data-collection-and-privacy)
 

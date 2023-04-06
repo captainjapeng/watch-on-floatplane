@@ -4,6 +4,8 @@ specifiers:
   '@cloudflare/workers-types': ^4.20230228.0
   '@types/lodash': ^4.14.192
   '@types/stopword': ^2.0.0
+  date-fns: ^2.29.3
+  date-fns-tz: ^2.0.0
   hono: ^3.1.5
   jimp: ^0.22.7
   lodash: ^4.17.21
@@ -14,6 +16,8 @@ specifiers:
   wrangler: 2.12.0
 
 dependencies:
+  date-fns: 2.29.3
+  date-fns-tz: 2.0.0_date-fns@2.29.3
   hono: 3.1.5
   jimp: 0.22.7
   lodash: 4.17.21
@@ -943,6 +947,19 @@ packages:
       shebang-command: 2.0.0
       which: 2.0.2
     dev: true
+
+  /date-fns-tz/2.0.0_date-fns@2.29.3:
+    resolution: {integrity: sha512-OAtcLdB9vxSXTWHdT8b398ARImVwQMyjfYGkKD2zaGpHseG2UPHbHjXELReErZFxWdSLph3c2zOaaTyHfOhERQ==}
+    peerDependencies:
+      date-fns: '>=2.0.0'
+    dependencies:
+      date-fns: 2.29.3
+    dev: false
+
+  /date-fns/2.29.3:
+    resolution: {integrity: sha512-dDCnyH2WnnKusqvZZ6+jA1O51Ibt8ZMRNkDZdyAyK4YfbDwa/cEmuztzG5pk6hqlp9aSBPYcjOlktquahGwGeA==}
+    engines: {node: '>=0.11'}
+    dev: false
 
   /decompress-response/6.0.0:
     resolution: {integrity: sha512-aW35yZM6Bb/4oJlZncMH2LCoZtJXTRxES17vE3hoRiowU2kWHaJKFkSBDnDR+cm9J+9QhXmREyIfv0pji9ejCQ==}

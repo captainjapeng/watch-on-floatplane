@@ -64,6 +64,10 @@ You may install this browser extension officially from the [Chrome Web Store](ht
 3. Locate the zip file and drag it onto the extension page.
 
 
+# Statistics
+See the real-time statistics from [here](/README.md)
+
+
 # For development
 
 ## Install the dependencies

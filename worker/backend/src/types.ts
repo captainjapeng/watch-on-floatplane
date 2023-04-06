@@ -3,6 +3,8 @@ import { Bindings } from 'hono/dist/types/types'
 export interface Env extends Bindings {
   DB: D1Database
   PHASH_HOST: string
+  CF_API_TOKEN: string
+  CF_ACCOUNT_ID: string
   LOCAL: boolean
   USER: DurableObjectNamespace
   REQUESTS: AnalyticsEngineDataset

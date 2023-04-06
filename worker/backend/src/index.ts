@@ -15,6 +15,14 @@ import { match, search } from './search'
 import { BadUserInputError, EndpointDisableError, Env, HonoEnv } from './types'
 import { backfillPHash } from './phash'
 import { getChannels } from './channels'
+import {
+  dailyActiveUsers,
+  hourlyRequests,
+  lineGraph,
+  requestsLegend,
+  requestsTitle,
+  sortRequestDataset
+} from './stats'
 
 export { User } from './objects/user'
 
@@ -150,6 +158,42 @@ async function handleUserReq(ctx: Context<HonoEnv>): Promise<Response> {
 app.post('/user/sync/progress', handleUserReq)
 app.delete('/user', handleUserReq)
 
+app.get('/stats/dau', async (ctx) => {
+  const type = ctx.req.query('type') || 'json'
+  const result = await dailyActiveUsers(ctx.env)
+
+  if (type === 'json') return ctx.json(result)
+  else if (type === 'svg-line') {
+    const tz = (ctx.req.raw.cf as any).timezone || 'UTC'
+    const svg = lineGraph([result.data], tz, result.range)
+    return svgResponse(ctx, svg)
+  } else {
+    return ctx.json({ error: 'unsupported type' }, 400)
+  }
+})
+
+app.get('/stats/hourly-requests', async (ctx) => {
+  const type = ctx.req.query('type') || 'json'
+  const result = await hourlyRequests(ctx.env)
+
+  if (type === 'json') return ctx.json(result)
+  else if (type === 'svg-line') {
+    const tz = (ctx.req.raw.cf as any).timezone || 'UTC'
+    const dataset = sortRequestDataset(result)
+
+    const svg = lineGraph(
+      dataset.map(el => el.items),
+      tz,
+      result.range,
+      requestsTitle(tz),
+      requestsLegend(dataset)
+    )
+    return svgResponse(ctx, svg)
+  } else {
+    return ctx.json({ error: 'unsupported type' }, 400)
+  }
+})
+
 app.onError((err, ctx) => {
   if (err instanceof EndpointDisableError) {
     return ctx.json({ error: err.message }, 403)
@@ -173,4 +217,8 @@ export default {
 
     await Promise.all(tasks)
   }
+}
+
+function svgResponse(ctx: Context<HonoEnv>, svg: string): Response {
+  return ctx.text(svg, 200, { 'Content-Type': 'image/svg+xml' })
 }
