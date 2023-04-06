@@ -41,6 +41,8 @@ app.use('*', async (ctx, next) => {
   const ipAddr = ctx.req.headers.get('CF-Connecting-IP')
   const ua = ctx.req.headers.get('User-Agent')
 
+  if (ua?.includes('github-camo')) return
+
   const visitorDigest = await crypto.subtle.digest(
     { name: 'SHA-256' },
     new TextEncoder().encode([ipAddr, country, city, ua].join(''))
