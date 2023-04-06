@@ -21,6 +21,32 @@ export { User } from './objects/user'
 const cache = caches.default
 const app = new Hono<HonoEnv>()
 app.use('*', cors())
+app.use('*', async (ctx, next) => {
+  const startTime = Date.now()
+  await next()
+  const elapsed = Date.now() - startTime
+
+  const cf = ctx.req.raw.cf
+  const path = new URL(ctx.req.url).pathname
+  const country = (cf as any)?.country || 'N/A'
+  const city = (cf as any)?.city || 'N/A'
+  const ipAddr = ctx.req.headers.get('CF-Connecting-IP')
+  const ua = ctx.req.headers.get('User-Agent')
+
+  const visitorDigest = await crypto.subtle.digest(
+    { name: 'SHA-256' },
+    new TextEncoder().encode([ipAddr, country, city, ua].join(''))
+  )
+  const visitorId = Array.from(new Uint8Array(visitorDigest))
+    .map(el => el.toString(16).padStart(2, '0'))
+    .join('')
+
+  ctx.env.REQUESTS.writeDataPoint({
+    blobs: [country, city, visitorId],
+    doubles: [1, elapsed],
+    indexes: [path]
+  })
+})
 
 app.get('/match', async (ctx) => {
   const cacheKey = new Request(ctx.req.url.toString(), ctx.req.raw)

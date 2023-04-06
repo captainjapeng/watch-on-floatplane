@@ -5,6 +5,7 @@ export interface Env extends Bindings {
   PHASH_HOST: string
   LOCAL: boolean
   USER: DurableObjectNamespace
+  REQUESTS: AnalyticsEngineDataset
 }
 
 export type HonoEnv = { Bindings: Env }

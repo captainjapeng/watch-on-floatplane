@@ -2,6 +2,10 @@ name = "watch-on-floatplane"
 main = "src/index.ts"
 compatibility_date = "2023-03-04"
 
+analytics_engine_datasets = [
+  { binding = "REQUESTS", dataset = "wofp-requests" }
+]
+
 [[ d1_databases ]]
 binding = "DB"
 # database_id = "9364baf2-f635-4baa-9f85-b13ab7e534ef"

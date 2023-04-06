@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Add metrics colletion for backend observability. [Read more](https://github.com/captainjapeng/watch-on-floatplane#data-collection-and-privacy)
+
 ### Fixed
 - Properly insert progress item to the correct index when syncing.
 
