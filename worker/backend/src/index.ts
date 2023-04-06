@@ -220,5 +220,10 @@ export default {
 }
 
 function svgResponse(ctx: Context<HonoEnv>, svg: string): Response {
-  return ctx.text(svg, 200, { 'Content-Type': 'image/svg+xml' })
+  return ctx.text(svg, 200, {
+    'Content-Type': 'image/svg+xml',
+    Pragma: 'no-cache',
+    Expires: '0',
+    'Cache-Control': 'no-cache, no-store, must-revalidate'
+  })
 }
