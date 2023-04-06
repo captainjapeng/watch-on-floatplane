@@ -173,7 +173,7 @@ export function lineGraph(
         <line x1="90" y1="10" x2="90" y2="371"></line>
       </g>
       <g class="labels x-labels">
-        ${generateXAxis(xAxis, tz)}
+        ${generateXAxis(xAxis, tz, xRange.interval)}
         <text x="497" y="390" class="label-title">Time (Local)</text>
       </g>
       <g class="labels y-labels">
@@ -193,6 +193,7 @@ export function lineGraph(
 function generateSteps(max: number, startVal = 0, numElements = 10, interval: number | null = null) {
   if (!interval) {
     interval = Math.ceil((max - startVal) / numElements)
+    max += interval
   }
 
   const steps = []
@@ -209,15 +210,22 @@ function generateYAxis(values: number[]) {
     .join('\n')
 }
 
-function generateXAxis(values: number[], tz = 'Asia/Manila') {
+function generateXAxis(values: number[], tz = 'Asia/Manila', interval: number) {
   const xMin = 90, xMax = 905 - xMin
   return values.map(val => [val, getAxisPercentage(values, val) * xMax + xMin])
     .map(([val, x]) => {
-      const zonedTime = utcToZonedTime(val, tz)
-      const isStartOfDay = startOfDay(zonedTime).valueOf() === zonedTime.valueOf()
+      let format = 'MMM d, h:mm aa'
+      if (interval === ONE_HOUR) {
+        const zonedTime = utcToZonedTime(val, tz)
+        const isStartOfDay = startOfDay(zonedTime).valueOf() === zonedTime.valueOf()
+        if (isStartOfDay) format = 'MMM d'
+      } else if (interval === ONE_DAY) {
+        format = 'MMM d'
+      }
+
       return `
       <text text-anchor="start" alignment-baseline="central" style="transform: translate(${x}px, 400px) rotate(25deg)">
-        ${formatInTimeZone(val, tz, isStartOfDay ? 'MMM d' : 'h:mm aa')}
+        ${formatInTimeZone(val, tz, format)}
       </text>
     `
     })
