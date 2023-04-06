@@ -1,21 +1,30 @@
 # Watch on Floatplane
 
-| Watch on Floatplane button | Searching |
-| --- | --- |
-| ![wofp-screnshot](https://user-images.githubusercontent.com/26142675/228764977-f9b0f09d-7aaf-4c09-ac95-5578ebfd00b9.jpg) | ![wofp-search](https://user-images.githubusercontent.com/26142675/228764031-614c1fc3-1cb1-445c-8ed7-1c8e067e38c3.jpg) |
-
-
 Watch on Floatplane is a browser extension for notifying you that a video is available on Floatplane.
 
 It does this by adding a small icon to the YouTube video player that shows you if the video is also available on Floatplane. If it is, you can click on the icon and watch it there with no ads and at higher quality.
 
+
+# Features
+
+| Feature | Screenshot |
+| --- | --- |
+| **Watch on Floatplane** | ![button](github-assets\button.jpg) |
+| **Popup Search** | ![search](github-assets\search.jpg) |
+| **Watched Indicator** | ![watched](github-assets\watched.jpg) |
+| **Resume&nbsp;from&nbsp;where&nbsp;you&nbsp;left&nbsp;off** | ![resume](github-assets\resume.jpg) |
+| **Cloud&nbsp;Sync&nbsp;between&nbsp;devices**<br>(Must be turned on manually on the settings menu) | ![cloud-sync](github-assets\cloud-sync.jpg) |
+
+
 # TODO
 - [x] `Watch on Floatplane` button
 - [x] Popup Search
-- [x] Watch Queue
+- [x] Watched Video Indicator
+- [x] Resume Watching
+- [ ] Dark Mode
+- [ ] Watch Queue
 - [ ] Live Stream View Counter
-- [ ] Watched Video Indicator
-- [ ] Resume Watching
+
 
 # Disclaimer
 
@@ -24,6 +33,7 @@ It does this by adding a small icon to the YouTube video player that shows you i
 > Watch on Floatplane browser extension is not affiliated with YouTube or Floatplane, and requires a valid Floatplane account to watch the videos.
 >
 > ⚠ ⚠ ⚠ ⚠ ⚠ ⚠ ⚠ ⚠ ⚠ ⚠
+
 
 # Data Collection and Privacy
 > ⚠ ⚠ ⚠ ⚠ ⚠ ⚠ ⚠ ⚠ ⚠ ⚠
