@@ -16,8 +16,12 @@ import { BadUserInputError, EndpointDisableError, Env, HonoEnv } from './types'
 import { backfillPHash } from './phash'
 import { getChannels } from './channels'
 import {
+  AnalyticsQueryResult,
+  LineGraphOptions,
+  RequestItem,
   dailyActiveUsers,
   hourlyRequests,
+  hourlyRequestsResponseTime,
   lineGraph,
   requestsLegend,
   requestsTitle,
@@ -161,6 +165,33 @@ async function handleUserReq(ctx: Context<HonoEnv>): Promise<Response> {
 app.post('/user/sync/progress', metricsMiddleware, handleUserReq)
 app.delete('/user', metricsMiddleware, handleUserReq)
 
+// Stats endoint
+function handleRequestsReq(dataFn: (env: Env) => Promise<AnalyticsQueryResult<RequestItem>>, opts?: Partial<LineGraphOptions>) {
+  return async function(ctx: Context<HonoEnv>) {
+    const type = ctx.req.query('type') || 'json'
+    const result = await dataFn(ctx.env)
+
+    if (type === 'json') return ctx.json(result)
+    else if (type === 'svg-line') {
+      const ua = ctx.req.headers.get('User-Agent')
+      const tz = ua?.includes('github-camo')
+        ? 'UTC'
+        : (ctx.req.raw.cf as any).timezone || 'UTC'
+      const dataset = sortRequestDataset(result)
+
+      const svg = lineGraph(Object.assign({
+        data: dataset.map(el => el.items),
+        tz,
+        xRange: result.range,
+        getTitle: requestsTitle(tz, opts?.yLabel),
+        getLegend: requestsLegend(dataset)
+      }, opts))
+      return svgResponse(ctx, svg)
+    } else {
+      return ctx.json({ error: 'unsupported type' }, 400)
+    }
+  }
+}
 app.get('/stats/dau', async (ctx) => {
   const type = ctx.req.query('type') || 'json'
   const result = await dailyActiveUsers(ctx.env)
@@ -171,37 +202,21 @@ app.get('/stats/dau', async (ctx) => {
     const tz = ua?.includes('github-camo')
       ? 'UTC'
       : (ctx.req.raw.cf as any).timezone || 'UTC'
-    const svg = lineGraph([result.data], tz, result.range)
-    return svgResponse(ctx, svg)
-  } else {
-    return ctx.json({ error: 'unsupported type' }, 400)
-  }
-})
-
-app.get('/stats/hourly-requests', async (ctx) => {
-  const type = ctx.req.query('type') || 'json'
-  const result = await hourlyRequests(ctx.env)
-
-  if (type === 'json') return ctx.json(result)
-  else if (type === 'svg-line') {
-    const ua = ctx.req.headers.get('User-Agent')
-    const tz = ua?.includes('github-camo')
-      ? 'UTC'
-      : (ctx.req.raw.cf as any).timezone || 'UTC'
-    const dataset = sortRequestDataset(result)
-
-    const svg = lineGraph(
-      dataset.map(el => el.items),
+    const svg = lineGraph({
+      data: [result.data],
       tz,
-      result.range,
-      requestsTitle(tz),
-      requestsLegend(dataset)
-    )
+      xRange: result.range
+    })
     return svgResponse(ctx, svg)
   } else {
     return ctx.json({ error: 'unsupported type' }, 400)
   }
 })
+
+app.get('/stats/hourly-requests', handleRequestsReq(hourlyRequests))
+app.get('/stats/hourly-requests-rt', handleRequestsReq(hourlyRequestsResponseTime, {
+  yLabel: 'Response Time (ms)'
+}))
 
 app.onError((err, ctx) => {
   if (err instanceof EndpointDisableError) {

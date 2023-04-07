@@ -82,6 +82,27 @@ export function hourlyRequests(env: Env): Promise<AnalyticsQueryResult<RequestIt
   })
 }
 
+export function hourlyRequestsResponseTime(env: Env): Promise<AnalyticsQueryResult<RequestItem>> {
+  const rangeMax = Math.floor(Date.now() / (ONE_HOUR)) * (ONE_HOUR)
+  const rangeMin = rangeMax - (24 * ONE_HOUR)
+  const rangeInterval = ONE_HOUR
+
+  return queryAnalytics<RequestItem>(env, `
+    SELECT
+        intDiv(toUInt32(timestamp), 60 * 60) * (60 * 60 * 1000) AS t,
+        index1 as path,
+        SUM(_sample_interval * double2) / SUM(_sample_interval) as count
+    FROM "wofp-requests"
+    WHERE
+      timestamp > NOW() - INTERVAL '1' DAY
+    GROUP BY index1, t
+  `, {
+    min: rangeMin,
+    max: rangeMax,
+    interval: rangeInterval
+  })
+}
+
 async function queryAnalytics<T = any>(env: Env, query: string, range: Range): Promise<AnalyticsQueryResult<T>> {
   const apiUrl = `https://api.cloudflare.com/client/v4/accounts/${env.CF_ACCOUNT_ID}/analytics_engine/sql`
   const resp = await fetch(apiUrl, {
@@ -94,29 +115,31 @@ async function queryAnalytics<T = any>(env: Env, query: string, range: Range): P
   return { ...await resp.json(), range }
 }
 
-export interface XRange {
-  min: number,
-  max: number,
-  interval: number
+export interface LineGraphOptions {
+  xLabel?: string
+  yLabel?: string
+  data: LineGraphItem[][]
+  tz?: string,
+  xRange: Range,
+  yRange?: Range,
+  getTitle?: TitleHandler
+  getLegend?: LegendHandler
 }
 
-export function lineGraph(
-  data: LineGraphItem[][],
-  tz: string,
-  xRange: XRange,
-  getTitle?: TitleHandler,
-  generateLegend?: LegendHandler
-): string {
+export function lineGraph(opts: LineGraphOptions): string {
+  opts = Object.assign({
+    xLabel: `TIME ${opts.tz}`,
+    yLabel: 'COUNT'
+  }, opts)
+
+  const { data, xRange, yRange, getLegend } = opts
+  const tz = opts.tz || 'UTC'
+
   const yMax = Math.max(...data.flatMap(el => el).map(el => el.count) as any[])
-  const yAxis = generateSteps(yMax)
+  const yAxis = yRange ? generateStepsFromRange(yRange) : generateSteps(yMax)
+  const xAxis = generateStepsFromRange(xRange)
 
-  const xAxis = generateSteps(
-    xRange.max,
-    xRange.min,
-    undefined,
-    xRange.interval
-  )
-
+  let getTitle = opts.getTitle
   if (!getTitle) {
     getTitle = function(_, x, item) {
       const time = formatInTimeZone(x, tz, 'MMM d, yyyy h:mm aa')
@@ -174,17 +197,17 @@ export function lineGraph(
       </g>
       <g class="labels x-labels">
         ${generateXAxis(xAxis, tz, xRange.interval)}
-        <text x="497" y="390" class="label-title">Time (${tz})</text>
+        <text x="497" y="390" class="label-title">${opts.xLabel}</text>
       </g>
       <g class="labels y-labels">
         ${generateYAxis(yAxis)}
-        <text x="50" y="190" class="label-title">Count</text>
+        <text text-anchor="middle" style="transform: translate(15px, 190px) rotate(90deg)" class="label-title">${opts.yLabel}</text>
       </g>
       <g class="data">
         ${generateDataset(xAxis, yAxis, data, getTitle)}
       </g>
       <g class="legend">
-        ${generateLegend ? generateLegend() : ''}
+        ${getLegend ? getLegend() : ''}
       </g>
     </svg>
   `
@@ -201,6 +224,9 @@ function generateSteps(max: number, startVal = 0, numElements = 10, interval: nu
     steps.push(i)
   }
   return steps
+}
+function generateStepsFromRange(range: Range) {
+  return generateSteps(range.max, range.min, undefined, range.interval)
 }
 
 function generateYAxis(values: number[]) {
@@ -290,12 +316,12 @@ export function sortRequestDataset(result: AnalyticsQueryResult<RequestItem>) {
     .value()
 }
 
-export function requestsTitle(tz: string): TitleHandler {
+export function requestsTitle(tz: string, yLabel = 'Count'): TitleHandler {
   return function(data, x, item) {
     const time = formatInTimeZone(x, tz, 'MMM d, yyyy h:mm aa')
     const path = (data[0] as any).path
     const count = item?.count || 0
-    return `Time: ${time}\nPath: ${path}\nCount: ${count}`
+    return `Time: ${time}\nPath: ${path}\n${yLabel}: ${count}`
   }
 }
 
@@ -309,7 +335,7 @@ export function requestsLegend(dataset: any) {
         <g>
           <rect x="115" y="${y}" width="10" height="10" fill="${getColor(idx)}"></rect>
           <text x="130" y="${y + 6}" alignment-baseline="central">${data.max}</text>
-          <text x="160" y="${y + 6}" alignment-baseline="central">${data.items[0].path}</text>
+          <text x="180" y="${y + 6}" alignment-baseline="central">${data.items[0].path}</text>
         </g>
       `
 
