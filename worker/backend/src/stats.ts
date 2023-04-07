@@ -128,7 +128,7 @@ export interface LineGraphOptions {
 
 export function lineGraph(opts: LineGraphOptions): string {
   opts = Object.assign({
-    xLabel: `TIME ${opts.tz}`,
+    xLabel: `TIME ( ${opts.tz} )`,
     yLabel: 'COUNT'
   }, opts)
 
