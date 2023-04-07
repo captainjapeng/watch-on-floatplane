@@ -325,16 +325,17 @@ export function requestsTitle(tz: string, yLabel = 'Count'): TitleHandler {
   }
 }
 
-export function requestsLegend(dataset: any) {
+export function requestsLegend(dataset: any, mode: 'count' | 'average' = 'count') {
   return function() {
     const legends: any[] = []
     let y = 25
 
     for (const [idx, data] of dataset.entries()) {
+      const value = mode === 'count' ? data.max : Math.round(data.max / data.items.length)
       const node = `
         <g>
           <rect x="115" y="${y}" width="10" height="10" fill="${getColor(idx)}"></rect>
-          <text x="130" y="${y + 6}" alignment-baseline="central">${data.max}</text>
+          <text x="130" y="${y + 6}" alignment-baseline="central">${value}</text>
           <text x="180" y="${y + 6}" alignment-baseline="central">${data.items[0].path}</text>
         </g>
       `

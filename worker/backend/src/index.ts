@@ -166,7 +166,7 @@ app.post('/user/sync/progress', metricsMiddleware, handleUserReq)
 app.delete('/user', metricsMiddleware, handleUserReq)
 
 // Stats endoint
-function handleRequestsReq(dataFn: (env: Env) => Promise<AnalyticsQueryResult<RequestItem>>, opts?: Partial<LineGraphOptions>) {
+function handleRequestsReq(dataFn: (env: Env) => Promise<AnalyticsQueryResult<RequestItem>>, opts?: Partial<LineGraphOptions>, isAverage = false) {
   return async function(ctx: Context<HonoEnv>) {
     const type = ctx.req.query('type') || 'json'
     const result = await dataFn(ctx.env)
@@ -184,7 +184,7 @@ function handleRequestsReq(dataFn: (env: Env) => Promise<AnalyticsQueryResult<Re
         tz,
         xRange: result.range,
         getTitle: requestsTitle(tz, opts?.yLabel),
-        getLegend: requestsLegend(dataset)
+        getLegend: requestsLegend(dataset, isAverage ? 'average' : 'count')
       }, opts))
       return svgResponse(ctx, svg)
     } else {
@@ -216,7 +216,7 @@ app.get('/stats/dau', async (ctx) => {
 app.get('/stats/hourly-requests', handleRequestsReq(hourlyRequests))
 app.get('/stats/hourly-requests-rt', handleRequestsReq(hourlyRequestsResponseTime, {
   yLabel: 'Response Time (ms)'
-}))
+}, true))
 
 app.onError((err, ctx) => {
   if (err instanceof EndpointDisableError) {
