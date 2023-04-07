@@ -167,7 +167,10 @@ app.get('/stats/dau', async (ctx) => {
 
   if (type === 'json') return ctx.json(result)
   else if (type === 'svg-line') {
-    const tz = (ctx.req.raw.cf as any).timezone || 'UTC'
+    const ua = ctx.req.headers.get('User-Agent')
+    const tz = ua?.includes('github-camo')
+      ? 'UTC'
+      : (ctx.req.raw.cf as any).timezone || 'UTC'
     const svg = lineGraph([result.data], tz, result.range)
     return svgResponse(ctx, svg)
   } else {
@@ -181,7 +184,10 @@ app.get('/stats/hourly-requests', async (ctx) => {
 
   if (type === 'json') return ctx.json(result)
   else if (type === 'svg-line') {
-    const tz = (ctx.req.raw.cf as any).timezone || 'UTC'
+    const ua = ctx.req.headers.get('User-Agent')
+    const tz = ua?.includes('github-camo')
+      ? 'UTC'
+      : (ctx.req.raw.cf as any).timezone || 'UTC'
     const dataset = sortRequestDataset(result)
 
     const svg = lineGraph(

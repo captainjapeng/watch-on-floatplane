@@ -174,7 +174,7 @@ export function lineGraph(
       </g>
       <g class="labels x-labels">
         ${generateXAxis(xAxis, tz, xRange.interval)}
-        <text x="497" y="390" class="label-title">Time (Local)</text>
+        <text x="497" y="390" class="label-title">Time (${tz})</text>
       </g>
       <g class="labels y-labels">
         ${generateYAxis(yAxis)}
@@ -218,7 +218,7 @@ function generateXAxis(values: number[], tz = 'Asia/Manila', interval: number) {
       if (interval === ONE_HOUR) {
         const zonedTime = utcToZonedTime(val, tz)
         const isStartOfDay = startOfDay(zonedTime).valueOf() === zonedTime.valueOf()
-        if (isStartOfDay) format = 'MMM d'
+        format = isStartOfDay ? 'MMM d' : 'h:mm aa'
       } else if (interval === ONE_DAY) {
         format = 'MMM d'
       }
