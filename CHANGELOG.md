@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Watched indicator not showing when loading more videos
+- Handle edge case where video does not have a duration (i.e FP Exclusive: We Got a Metal 3D Printer!)
+
+
 ## [0.3.3] - 2023-04-07
 
 ### Added

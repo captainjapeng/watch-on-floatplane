@@ -23,7 +23,7 @@ export async function waitForElement<T>(selector: string) {
   })
 }
 
-export function watchForElement<T extends Element>(selector: string, cb: (el: T) => void | Promise<void>) {
+export function watchForElement<T extends Element>(selector: string, cb: (el: T) => void | Promise<void>, continuous = false) {
   let currElement = document.querySelector(selector) as T
   if (currElement) {
     cb(currElement)
@@ -31,7 +31,7 @@ export function watchForElement<T extends Element>(selector: string, cb: (el: T)
 
   const observer = new MutationObserver(() => {
     const newElement = document.querySelector(selector) as T
-    if (currElement !== newElement) {
+    if (continuous || currElement !== newElement) {
       currElement = newElement
       cb(currElement)
     }

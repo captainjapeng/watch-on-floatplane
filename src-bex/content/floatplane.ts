@@ -65,9 +65,9 @@ export default function(bridge: BexBridge) {
 
               const thumbEl = itemEl.querySelector<HTMLDivElement>('div.PostTileThumbnail')
               const durationEl = itemEl.querySelector<HTMLDivElement>('div.duration > .text')
-              if (!thumbEl || !durationEl) return
+              if (!thumbEl) return
 
-              const duration = parseDuration(durationEl.textContent || '')
+              const duration = durationEl ? parseDuration(durationEl.textContent || '') : 1
               thumbEl.appendChild(createProgressBar(videoProgress.progress / duration))
               itemEl.classList.add('watched')
 
@@ -75,7 +75,8 @@ export default function(bridge: BexBridge) {
                 itemEl.classList.add('watched-fully')
               }
             })
-          }
+          },
+          true
         )
       }
     })
